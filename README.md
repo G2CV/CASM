@@ -1,7 +1,7 @@
 # CASM
 ## Continuous Attack Surface Monitoring
 
-![CASM logo](https://github.com/user-attachments/assets/959ba6fd-c34d-4b33-9209-6a058aa82f46)
+![CASM logo](docs/assets/casm-dark-logo-with-parent-stacked.svg)
 
 **EASM + Baseline Comparison + Evidence-First**
 

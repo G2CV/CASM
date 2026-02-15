@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 280 60" preserveAspectRatio="xMidYMid meet">
+  <g transform="translate(0,0) scale(0.3)">
+    <rect x="94" y="44" width="12" height="100" rx="2" ry="2" fill="#2E5BFF"/>
+    <rect x="52" y="72" width="96" height="3" rx="1" ry="1" fill="#0A1628"/>
+    <rect x="64" y="112" width="72" height="3" rx="1" ry="1" fill="#0A1628"/>
+    <path d="M100 16 L172 48 L172 112 L100 184 L28 112 L28 48 Z" stroke="#0A1628" stroke-width="5" fill="none" stroke-linejoin="miter"/>
+  </g>
+  <text x="62" y="40" font-family="'Manrope',sans-serif" font-weight="700" font-size="30" letter-spacing="6" fill="#0A1628">CASM</text>
+  <text x="198" y="38" font-family="'Manrope',sans-serif" font-weight="300" font-size="14" fill="#98A2B3" letter-spacing="1">by G2CV</text>
+</svg>
