@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "tool_name",
+    "engagement_id",
+    "run_id",
+    "scope",
+    "dry_run",
+    "per_attempt_timeout_ms",
+    "tool_timeout_ms",
+    "rate_limit",
+    "input"
+  ],
+  "properties": {
+    "tool_name": { "type": "string" },
+    "engagement_id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "scope": { "type": "object" },
+    "dry_run": { "type": "boolean" },
+    "per_attempt_timeout_ms": { "type": "integer", "minimum": 0 },
+    "tool_timeout_ms": { "type": "integer", "minimum": 0 },
+    "rate_limit": {
+      "type": "object",
+      "required": ["rps", "burst", "concurrency"],
+      "properties": {
+        "rps": { "type": "number", "minimum": 0 },
+        "burst": { "type": "integer", "minimum": 0 },
+        "concurrency": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "input": {
+      "type": "object",
+      "required": ["targets", "ports", "protocol"],
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["host"],
+            "properties": {
+              "host": { "type": "string" }
+            }
+          }
+        },
+        "ports": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1, "maximum": 65535 }
+        },
+        "protocol": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "engagement_id": "eng-example",
+  "run_id": "20260204T120000Z-abc123",
+  "dry_run": false,
+  "config": {
+    "domains": ["example.com"],
+    "nameservers": ["127.0.0.1:53"],
+    "wordlist_path": "wordlists/common-subdomains.txt",
+    "passive_only": false,
+    "passive_sources": ["crt.sh"],
+    "rate_limit": 10,
+    "timeout": 5000,
+    "max_depth": 1,
+    "record_types": ["A", "AAAA", "CNAME"],
+    "check_zone_transfer": false,
+    "detect_wildcard": true,
+    "active_discovery": {
+      "enabled": true,
+      "wordlist": "wordlists/common-subdomains.txt",
+      "rate_limit": 10,
+      "timeout": 5000,
+      "max_depth": 1,
+      "concurrency": 4
+    }
+  }
+}

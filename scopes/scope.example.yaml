@@ -1,0 +1,51 @@
+engagement_id: eng-123
+allowed_domains:
+  - example.com
+allowed_subdomains: []
+excluded_domains: []
+allowed_ips:
+  - 192.0.2.0/24
+allowed_ports: [80, 443]
+allowed_protocols: [tcp, http, https]
+seed_targets: [example.com]
+max_rate: 5
+max_concurrency: 2
+per_attempt_timeout_ms: 8000
+tool_timeout_ms: 10000
+http_verify_profile: baseline
+http_verify_max_redirects: 5
+http_verify_max_body_bytes: 32768
+http_verify_tls_expiry_days: 30
+http_verify_tls_ca_bundle_path: ""
+http_verify_tls_insecure_skip_verify: false
+http_verify_tls_server_name: ""
+http_verify_https_ports: [443]
+inventory_resolve_ips: false
+active_allowed: false
+auth_allowed: false
+time_window: null
+dns_enumeration:
+  enabled: false
+  nameservers: []
+  passive_sources:
+    - crt.sh
+  active_discovery:
+    enabled: false
+    wordlist: wordlists/common-subdomains.txt
+    rate_limit: 10
+    timeout: 5000
+    max_depth: 1
+    concurrency: 4
+  rate_limit: 10
+  timeout: 5000
+  max_depth: 1
+  max_consecutive_failures: 20
+  check_zone_transfer: false
+  detect_wildcard: true
+  record_types:
+    - A
+    - AAAA
+    - CNAME
+    - MX
+    - TXT
+    - SRV

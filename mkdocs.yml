@@ -1,0 +1,38 @@
+site_name: CASM Documentation
+site_description: Continuous Attack Surface Monitoring docs
+theme:
+  name: mkdocs
+nav:
+  - Home: index.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Data Flow: architecture/data-flow.md
+      - Python-Go Bridge: architecture/python-go-bridge.md
+  - Tutorials:
+      - Setup for Beginners: tutorials/setup-for-beginners.md
+      - Tutorial 1 Hello World: tutorials/tutorial-1-hello-world.md
+      - Tutorial 2 Real Use Case: tutorials/tutorial-2-real-use-case.md
+      - Tutorial 3 Advanced Integration: tutorials/tutorial-3-advanced-integration.md
+  - How-To:
+      - Add Python Module: how-to/add-python-module.md
+      - Add Go Package: how-to/add-go-package.md
+      - Extend Interface: how-to/extend-bridge.md
+      - Debug Cross Language: how-to/debug-cross-language.md
+      - Testing: how-to/testing.md
+      - Profile Performance: how-to/profile-performance.md
+      - Contributing: how-to/contributing.md
+  - Reference:
+      - Component Inventory: reference/component-inventory.md
+      - Data Structures: reference/data-structures.md
+      - Python API: reference/python-api.md
+      - Function Signature Matrix: reference/function-signature-matrix.md
+      - Go API: reference/go-api.md
+      - Function Catalog: reference/function-catalog.md
+      - CLI: reference/cli.md
+      - Configuration: reference/configuration.md
+      - Glossary: reference/glossary.md
+  - Explanation:
+      - Design Decisions: explanation/design-decisions.md
+      - Trade-offs: explanation/trade-offs.md
+      - Security Model: explanation/security-model.md
+      - Performance: explanation/performance.md

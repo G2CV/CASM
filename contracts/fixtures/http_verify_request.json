@@ -1,0 +1,38 @@
+{
+  "engagement_id": "eng-2026-01",
+  "run_id": "run-0001",
+  "dry_run": true,
+  "debug": false,
+  "profile": "baseline",
+  "https_ports": [443],
+  "tls": {
+    "ca_bundle_path": "",
+    "insecure_skip_verify": false,
+    "server_name": ""
+  },
+  "scope": {
+    "allowed_domains": ["example.com"],
+    "allowed_ips": ["192.0.2.0/24"],
+    "allowed_ports": [80, 443],
+    "allowed_protocols": ["http", "https"]
+  },
+  "targets": [
+    { "url": "https://example.com/", "method": "HEAD" },
+    { "url": "http://example.com:8080/health", "method": "HEAD" }
+  ],
+  "limits": {
+    "max_concurrency": 10,
+    "rps": 5,
+    "timeout_ms": 8000,
+    "max_redirects": 5,
+    "max_body_bytes": 32768,
+    "tls_expiry_days": 30
+  },
+  "evidence": {
+    "jsonl_path": "artifacts/evidence.jsonl"
+  },
+  "sarif": {
+    "enabled": true,
+    "path": "artifacts/results.sarif"
+  }
+}

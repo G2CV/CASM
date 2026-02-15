@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Output artifacts
+artifacts/
+runs/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Go
+hands/bin/
+
+# Env
+.env
+.venv/
+venv/
+
+# Packaging
+*.egg-info/
+dist/
+build/
+
+# Local harness
+scopes/*
+!scopes/scope.example.yaml
+targets/*
+!targets/target-harness.example.json
+
+# validation scripts
+validation-scripts/
+
+# Mkdocs site 
+site/

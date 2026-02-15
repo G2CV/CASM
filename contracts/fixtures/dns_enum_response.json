@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "blocked_reason": null,
+  "tool_name": "dns_enum",
+  "tool_version": "0.1.0",
+  "discoveries": [
+    {
+      "domain": "example.com",
+      "subdomain": "api.example.com",
+      "record_type": "A",
+      "values": ["192.0.2.1"],
+      "source": "crt.sh",
+      "discovery_method": "passive",
+      "first_seen": "2026-02-04T12:00:00Z",
+      "timestamp": "2026-02-04T12:00:00Z"
+    }
+  ],
+  "queries": [
+    {
+      "domain": "example.com",
+      "subdomain": "api.example.com",
+      "record_type": "A",
+      "source": "crt.sh",
+      "discovery_method": "passive",
+      "status": "success",
+      "error": "",
+      "duration_ms": 42,
+      "timestamp": "2026-02-04T12:00:01Z"
+    }
+  ],
+  "errors": [],
+  "wildcards": [],
+  "metrics": {
+    "discoveries": 1,
+    "queries": 1,
+    "errors": 0
+  }
+}

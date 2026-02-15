@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["ok", "tool_name", "tool_version"],
+  "properties": {
+    "ok": { "type": "boolean" },
+    "blocked_reason": { "type": ["string", "null"] },
+    "tool_name": { "type": "string" },
+    "tool_version": { "type": "string" },
+    "discoveries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["domain", "subdomain", "record_type", "values"],
+        "properties": {
+          "domain": { "type": "string" },
+          "subdomain": { "type": "string" },
+          "record_type": { "type": "string" },
+          "values": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "source": { "type": "string" },
+          "discovery_method": { "type": "string" },
+          "first_seen": { "type": "string" },
+          "timestamp": { "type": "string" }
+        }
+      }
+    },
+    "queries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "domain": { "type": "string" },
+          "subdomain": { "type": "string" },
+          "record_type": { "type": "string" },
+          "source": { "type": "string" },
+          "discovery_method": { "type": "string" },
+          "status": { "type": "string" },
+          "error": { "type": "string" },
+          "duration_ms": { "type": "integer" },
+          "timestamp": { "type": "string" }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "domain": { "type": "string" },
+          "subdomain": { "type": "string" },
+          "record_type": { "type": "string" },
+          "source": { "type": "string" },
+          "discovery_method": { "type": "string" },
+          "error": { "type": "string" },
+          "timestamp": { "type": "string" }
+        }
+      }
+    },
+    "wildcards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "domain": { "type": "string" },
+          "record_type": { "type": "string" },
+          "values": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "source": { "type": "string" },
+          "timestamp": { "type": "string" }
+        }
+      }
+    },
+    "metrics": { "type": "object" }
+  }
+}

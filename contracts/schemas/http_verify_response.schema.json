@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["tool_name", "tool_version", "run_id", "summary", "results"],
+  "properties": {
+    "tool_name": { "type": "string" },
+    "tool_version": { "type": "string" },
+    "run_id": { "type": "string" },
+    "summary": {
+      "type": "object",
+      "required": ["attempted", "succeeded", "failed", "blocked"],
+      "properties": {
+        "attempted": { "type": "integer" },
+        "succeeded": { "type": "integer" },
+        "failed": { "type": "integer" },
+        "blocked": { "type": "integer" }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["url", "method", "status_code", "final_url", "redirect_chain", "headers", "observed_headers", "tls_mode", "duration_ms", "error"],
+        "properties": {
+          "url": { "type": "string" },
+          "method": { "type": "string" },
+          "status_code": { "type": "integer" },
+          "final_url": { "type": "string" },
+          "redirect_chain": { "type": "array", "items": { "type": "string" } },
+          "headers": { "type": "object" },
+          "observed_headers": { "type": "object" },
+          "tls": { "type": ["object", "null"] },
+          "tls_mode": { "type": "string" },
+          "observations": { "type": "array" },
+          "duration_ms": { "type": "integer" },
+          "error": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "results": [
+    {
+      "duration_ms": 412,
+      "error": "",
+      "final_url": "https://example.com/",
+      "headers": {
+        "content-security-policy": "default-src 'self'",
+        "strict-transport-security": "max-age=31536000; includeSubDomains"
+      },
+      "method": "HEAD",
+      "observations": [
+        {
+          "key": "x-frame-options",
+          "type": "header_missing"
+        }
+      ],
+      "observed_headers": {
+        "content-security-policy": "default-src 'self'",
+        "strict-transport-security": "max-age=31536000; includeSubDomains"
+      },
+      "redirect_chain": [],
+      "status_code": 200,
+      "tls": {
+        "cert_issuer": "CN=Example CA",
+        "cert_subject": "CN=example.com",
+        "cipher_suite": "TLS_AES_128_GCM_SHA256",
+        "not_after": "2026-03-01T00:00:00Z",
+        "not_before": "2025-12-01T00:00:00Z",
+        "version": "TLS1.3"
+      },
+      "tls_mode": "system",
+      "url": "https://example.com/"
+    },
+    {
+      "duration_ms": 12,
+      "error": "blocked",
+      "final_url": "",
+      "headers": {},
+      "method": "HEAD",
+      "observations": [],
+      "observed_headers": {},
+      "redirect_chain": [],
+      "status_code": 0,
+      "tls": null,
+      "tls_mode": "system",
+      "url": "http://example.com:8080/health"
+    }
+  ],
+  "run_id": "run-0001",
+  "summary": {
+    "attempted": 2,
+    "blocked": 1,
+    "failed": 0,
+    "succeeded": 1
+  },
+  "tool_name": "http_verify",
+  "tool_version": "0.1.0"
+}

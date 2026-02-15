@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "engagement_id",
+    "run_id",
+    "dry_run",
+    "scope",
+    "targets",
+    "limits",
+    "evidence",
+    "sarif"
+  ],
+  "properties": {
+    "engagement_id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "dry_run": { "type": "boolean" },
+    "debug": { "type": "boolean" },
+    "profile": { "type": "string", "enum": ["baseline", "web_hardening"] },
+    "tls": {
+      "type": "object",
+      "properties": {
+        "ca_bundle_path": { "type": "string" },
+        "insecure_skip_verify": { "type": "boolean" },
+        "server_name": { "type": "string" }
+      }
+    },
+    "https_ports": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1, "maximum": 65535 }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["allowed_domains", "allowed_ips", "allowed_ports", "allowed_protocols"],
+      "properties": {
+        "allowed_domains": { "type": "array", "items": { "type": "string" } },
+        "allowed_ips": { "type": "array", "items": { "type": "string" } },
+        "allowed_ports": { "type": "array", "items": { "type": "integer" } },
+        "allowed_protocols": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["url", "method"],
+        "properties": {
+          "url": { "type": "string" },
+          "method": { "type": "string" }
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "required": ["max_concurrency", "rps", "timeout_ms", "max_redirects", "max_body_bytes", "tls_expiry_days"],
+      "properties": {
+        "max_concurrency": { "type": "integer", "minimum": 1 },
+        "rps": { "type": "integer", "minimum": 0 },
+        "timeout_ms": { "type": "integer", "minimum": 0 },
+        "max_redirects": { "type": "integer", "minimum": 0 },
+        "max_body_bytes": { "type": "integer", "minimum": 0 },
+        "tls_expiry_days": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["jsonl_path"],
+      "properties": {
+        "jsonl_path": { "type": "string" }
+      }
+    },
+    "sarif": {
+      "type": "object",
+      "required": ["enabled", "path"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "path": { "type": "string" }
+      }
+    }
+  }
+}

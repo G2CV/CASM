@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=69", "setuptools-scm[toml]>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "casm"
+dynamic = ["version"]
+description = "CASM: Continuous Attack Surface Monitoring"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0-or-later" }
+dependencies = [
+  "PyYAML==6.0.2",
+  "jsonschema==4.23.0",
+  "reportlab>=4.0.0",
+]
+
+[project.scripts]
+casm = "brain.cli.casm:main"
+
+[tool.setuptools.packages.find]
+include = ["brain", "brain.*"]
+
+[tool.setuptools_scm]
+tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+.*)$"
+version_scheme = "no-guess-dev"
+local_scheme = "no-local-version"
+fallback_version = "0.0.0"

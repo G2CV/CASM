@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["engagement_id", "run_id", "dry_run", "config"],
+  "properties": {
+    "engagement_id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "dry_run": { "type": "boolean" },
+    "config": {
+      "type": "object",
+      "required": ["domains"],
+      "properties": {
+        "domains": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "wordlist_path": { "type": "string" },
+        "passive_only": { "type": "boolean" },
+        "passive_sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "nameserver": { "type": "string" },
+        "nameservers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "rate_limit": { "type": "integer", "minimum": 0 },
+        "timeout": { "type": "integer", "minimum": 0 },
+        "max_depth": { "type": "integer", "minimum": 0 },
+        "max_consecutive_failures": { "type": "integer", "minimum": 0 },
+        "record_types": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "check_zone_transfer": { "type": "boolean" },
+        "detect_wildcard": { "type": "boolean" },
+        "active_discovery": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "wordlist": { "type": "string" },
+            "rate_limit": { "type": "integer", "minimum": 0 },
+            "timeout": { "type": "integer", "minimum": 0 },
+            "max_depth": { "type": "integer", "minimum": 0 },
+            "concurrency": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    }
+  }
+}

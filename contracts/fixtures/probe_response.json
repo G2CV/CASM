@@ -1,0 +1,60 @@
+{
+  "blocked_reason": null,
+  "evidence": [
+    {
+      "data": {
+        "port": 80,
+        "protocol": "tcp"
+      },
+      "duration_ms": 42,
+      "engagement_id": "eng-123",
+      "id": "evi-1",
+      "run_id": "run-123",
+      "status": "success",
+      "target": "example.com:80",
+      "timestamp": "2026-01-27T00:00:00Z",
+      "tool_name": "probe",
+      "tool_version": "0.1.0",
+      "type": "tcp_connect"
+    },
+    {
+      "data": {
+        "error": "connection refused",
+        "port": 443,
+        "protocol": "tcp"
+      },
+      "duration_ms": 7,
+      "engagement_id": "eng-123",
+      "id": "evi-2",
+      "run_id": "run-123",
+      "status": "error",
+      "target": "example.com:443",
+      "timestamp": "2026-01-27T00:00:01Z",
+      "tool_name": "probe",
+      "tool_version": "0.1.0",
+      "type": "tcp_connect"
+    }
+  ],
+  "findings": [
+    {
+      "evidence_ids": [
+        "evi-1"
+      ],
+      "id": "fnd-1",
+      "severity": "low",
+      "summary": "TCP connection succeeded.",
+      "target": "example.com:80",
+      "timestamp": "2026-01-27T00:00:00Z",
+      "title": "Open TCP port"
+    }
+  ],
+  "metrics": {
+    "attempted": 2,
+    "elapsed_ms": 123,
+    "open_count": 1
+  },
+  "ok": true,
+  "raw_redacted": {},
+  "tool_name": "probe",
+  "tool_version": "0.1.0"
+}

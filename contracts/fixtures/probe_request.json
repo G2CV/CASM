@@ -1,0 +1,33 @@
+{
+  "tool_name": "probe",
+  "engagement_id": "eng-123",
+  "run_id": "run-123",
+  "scope": {
+    "engagement_id": "eng-123",
+    "allowed_domains": ["example.com"],
+    "allowed_ips": ["192.0.2.0/24"],
+    "allowed_ports": [80, 443],
+    "allowed_protocols": ["tcp"],
+    "seed_targets": ["example.com"],
+    "max_rate": 5,
+    "max_concurrency": 2,
+    "active_allowed": false,
+    "auth_allowed": false,
+    "time_window": null
+  },
+  "dry_run": false,
+  "per_attempt_timeout_ms": 750,
+  "tool_timeout_ms": 5000,
+  "rate_limit": {
+    "rps": 5,
+    "burst": 5,
+    "concurrency": 2
+  },
+  "input": {
+    "targets": [
+      {"host": "example.com"}
+    ],
+    "ports": [80, 443],
+    "protocol": "tcp"
+  }
+}

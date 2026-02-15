@@ -1,0 +1,12 @@
+{
+  "targets": [
+    {
+      "url": "https://example.com/",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://api.example.com/health",
+      "method": "GET"
+    }
+  ]
+}
