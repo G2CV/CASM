@@ -1,6 +1,8 @@
 # CASM
 ## Continuous Attack Surface Monitoring
 
+![CASM logo](https://github.com/user-attachments/assets/959ba6fd-c34d-4b33-9209-6a058aa82f46)
+
 **EASM + Baseline Comparison + Evidence-First**
 
 Know your attack surface. Track what changes.
