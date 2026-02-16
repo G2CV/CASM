@@ -15,6 +15,7 @@ Run your first CASM scan in dry-run mode and inspect generated artifacts.
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt -r requirements-dev.txt
+# Optional (from PyPI): python -m pip install g2cv-casm
 python -m pip install -e .
 make build-hands
 make test

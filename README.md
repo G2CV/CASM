@@ -69,7 +69,7 @@ CASM is designed for authorized testing only and enforces:
 
 ## Requirements
 
-- Python 3.11+ recommended (tested with 3.14)
+- Python 3.11+ recommended
 - Go 1.21+
 
 ---
@@ -157,7 +157,10 @@ Timestamps follow RFC3339; if no timezone is provided, UTC is assumed.
 ## Quick Start
 
 ```bash
-# Install from source checkout
+# Install from PyPI
+pip install g2cv-casm
+
+# Or install from source checkout
 pip install -e .
 
 # Scan your infrastructure

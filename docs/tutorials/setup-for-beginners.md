@@ -30,6 +30,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt -r requirements-dev.txt
+# Optional (from PyPI): python -m pip install g2cv-casm
 python -m pip install -e .
 make build-hands
 ```
@@ -46,6 +47,8 @@ If both commands succeed, your local setup is ready.
 If `casm` is not found, reactivate the venv and run:
 
 ```bash
+python -m pip install g2cv-casm
+# or, from source checkout
 python -m pip install -e .
 ```
 

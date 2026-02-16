@@ -6,9 +6,12 @@ from importlib.metadata import PackageNotFoundError, version
 
 def get_casm_version() -> str:
     try:
-        return version("casm")
+        return version("g2cv-casm")
     except PackageNotFoundError:
-        return _version_from_git() or "dev"
+        try:
+            return version("casm")
+        except PackageNotFoundError:
+            return _version_from_git() or "dev"
 
 
 def _version_from_git() -> str | None:

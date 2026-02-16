@@ -3,7 +3,7 @@ requires = ["setuptools>=69", "setuptools-scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "casm"
+name = "g2cv-casm"
 dynamic = ["version"]
 description = "CASM: Continuous Attack Surface Monitoring"
 readme = "README.md"
@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 casm = "brain.cli.casm:main"
+g2cv-casm = "brain.cli.casm:main"
 
 [tool.setuptools.packages.find]
 include = ["brain", "brain.*"]
