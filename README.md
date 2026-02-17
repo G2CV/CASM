@@ -170,6 +170,15 @@ casm run unified --config scopes/scope.yaml --targets-file targets/target-harnes
 casm diff --old runs/baseline/results.sarif --new runs/current/results.sarif
 ```
 
+## Screenshots
+
+ Executive Summary (PDF)
+![Executive Summary](docs/assets/screenshots/executive-summary.png)
+ Changes Since Last Scan (PDF)
+![Changes Since Last Scan](docs/assets/screenshots/changes-since-last-scan.png)
+ DNS Enumeration Results (PDF)
+![DNS Enumeration Results](docs/assets/screenshots/dns-enum-results.png)
+
 ## Evidence model (what you can rely on)
 
 Evidence is written as JSONL (one JSON object per line). Key fields include:
