@@ -40,6 +40,202 @@ CASM_LOGO_DARK = colors.HexColor("#0A1628")
 CASM_LOGO_BLUE = colors.HexColor("#2E5BFF")
 
 
+def _pdf_text(lang: str) -> dict[str, str]:
+    if lang == "fr":
+        return {
+            "header_title": "Évaluation de sécurité CASM",
+            "page": "Page",
+            "confidential": "Confidentiel",
+            "engagement": "Engagement",
+            "date": "Date",
+            "cover_title": "Rapport d'évaluation de sécurité",
+            "run": "Exécution",
+            "report_date": "Date du rapport",
+            "report_schema": "Schéma du rapport",
+            "contact": "Contact",
+            "phone": "Téléphone",
+            "executive_summary": "Résumé exécutif",
+            "assessment_overview": "Vue d'ensemble de l'évaluation",
+            "domains_scanned": "Domaines analysés",
+            "dns_subdomains_discovered": "Sous-domaines DNS découverts",
+            "http_endpoints_tested": "Points de terminaison HTTP testés",
+            "total_security_findings": "Total des constats de sécurité",
+            "severity_breakdown": "Répartition par sévérité",
+            "key_concerns": "Points d'attention",
+            "no_critical_high": "Aucun problème critique ou élevé identifié.",
+            "table_of_contents": "Table des matières",
+            "scope_methodology": "Périmètre et méthodologie",
+            "assessment_scope": "Périmètre de l'évaluation",
+            "unique_targets_assessed": "Cibles uniques évaluées",
+            "assessment_window": "Fenêtre d'évaluation",
+            "to": "a",
+            "methods": "Méthodes",
+            "method_dns": "Énumération DNS (sources passives et actives)",
+            "method_http": "Vérification de sécurité HTTP",
+            "method_tcp": "Scan des ports TCP",
+            "dns_results": "Résultats de l'énumération DNS",
+            "dns_not_executed": "L'énumération DNS n'a pas été exécutée pour cette exécution.",
+            "total_subdomains_discovered": "Nombre total de sous-domaines découverts",
+            "no_dns_discoveries_recorded": "Aucune découverte DNS enregistrée.",
+            "security_concerns": "Préoccupations de sécurité",
+            "wildcard_dns_detected": "Réponses DNS wildcard détectées.",
+            "domains_blocked_scope": "Certains domaines ont été bloqués par la politique de périmètre.",
+            "no_dns_concerns": "Aucun problème DNS spécifique identifié.",
+            "http_security_findings": "Constats de sécurité HTTP",
+            "no_findings_in_tier": "Aucun constat dans ce niveau de sévérité.",
+            "port_scan_results": "Résultats du scan de ports",
+            "no_port_results": "Aucun résultat de scan de ports enregistré.",
+            "appendix_evidence": "Annexe : preuves",
+            "raw_evidence_available": "Les preuves brutes et sorties SARIF sont disponibles pour un accès automatisé.",
+            "view_sarif_with_tooling": "Consultez le SARIF avec des outils compatibles (ex. GitHub Code Scanning ou extensions VS Code).",
+            "severity": "Sévérité",
+            "count": "Nombre",
+            "subdomain": "Sous-domaine",
+            "record": "Type",
+            "values": "Valeurs",
+            "source": "Source",
+            "target": "Cible",
+            "port": "Port",
+            "protocol": "Protocole",
+            "status": "Statut",
+            "finding": "Constat",
+            "rule": "Règle",
+            "description": "Description",
+            "findings_label": "Constats",
+            "changes_since_last_scan": "Changements depuis le dernier scan",
+            "previous_run": "Exécution précédente",
+            "previous_scan_time": "Date du scan précédent",
+            "elapsed_time_days": "Temps écoulé",
+            "days": "jours",
+            "summary": "Résumé",
+            "no_changes_detected": "Aucun changement détecté depuis le dernier scan.",
+            "new_critical_findings": "Nouveaux constats critiques",
+            "new_high_findings": "Nouveaux constats élevés",
+            "resolved_findings": "Constats résolus",
+            "new_subdomains_discovered": "Nouveaux sous-domaines découverts",
+            "removed_subdomains": "Sous-domaines supprimés",
+            "first_seen_this_scan": "première détection: ce scan",
+            "last_seen": "dernière détection",
+            "status_fixed": "statut: corrigé",
+            "recommendation": "Recommandation",
+            "and_more": "Et {n} autres",
+            "new_high_see_http_section": "Voir la section constats HTTP pour le détail complet.",
+            "no_new_critical": "Aucun nouveau constat critique.",
+            "no_new_high": "Aucun nouveau constat élevé.",
+            "no_resolved": "Aucun constat résolu depuis le dernier scan.",
+            "no_new_subdomains": "Aucun nouveau sous-domaine découvert.",
+            "trend_analysis": "Analyse de tendance",
+            "metric": "Métrique",
+            "previous": "Précédent",
+            "current": "Courant",
+            "change": "Variation",
+            "total_findings": "Constats totaux",
+            "open_ports": "Ports ouverts",
+            "dns_subdomains": "Sous-domaines DNS",
+            "new_critical_reco": "Prioriser la correction immédiate des constats critiques.",
+            "new_high_reco": "Prioriser la remédiation des constats élevés.",
+            "resolved_reco": "Vérifier que les corrections résolues sont documentées et conservées.",
+            "new_subdomains_reco": "Vérifier si les nouveaux sous-domaines doivent être exposés publiquement.",
+            "removed_subdomains_reco": "Vérifier que les suppressions étaient intentionnelles et documentées.",
+        }
+    return {
+        "header_title": "CASM Security Assessment",
+        "page": "Page",
+        "confidential": "Confidential",
+        "engagement": "Engagement",
+        "date": "Date",
+        "cover_title": "Security Assessment Report",
+        "run": "Run",
+        "report_date": "Report Date",
+        "report_schema": "Report schema",
+        "contact": "Contact",
+        "phone": "Phone",
+        "executive_summary": "Executive Summary",
+        "assessment_overview": "Assessment Overview",
+        "domains_scanned": "Domains scanned",
+        "dns_subdomains_discovered": "DNS subdomains discovered",
+        "http_endpoints_tested": "HTTP endpoints tested",
+        "total_security_findings": "Total security findings",
+        "severity_breakdown": "Severity Breakdown",
+        "key_concerns": "Key Concerns",
+        "no_critical_high": "No critical or high severity concerns identified.",
+        "table_of_contents": "Table of Contents",
+        "scope_methodology": "Scope & Methodology",
+        "assessment_scope": "Assessment Scope",
+        "unique_targets_assessed": "Unique targets assessed",
+        "assessment_window": "Assessment window",
+        "to": "to",
+        "methods": "Methods",
+        "method_dns": "DNS enumeration (passive and active sources)",
+        "method_http": "HTTP security verification",
+        "method_tcp": "TCP port scanning",
+        "dns_results": "DNS Enumeration Results",
+        "dns_not_executed": "DNS enumeration was not executed for this run.",
+        "total_subdomains_discovered": "Total subdomains discovered",
+        "no_dns_discoveries_recorded": "No DNS discoveries were recorded.",
+        "security_concerns": "Security Concerns",
+        "wildcard_dns_detected": "Wildcard DNS responses detected.",
+        "domains_blocked_scope": "Some domains were blocked by scope policy.",
+        "no_dns_concerns": "No DNS-specific concerns identified.",
+        "http_security_findings": "HTTP Security Findings",
+        "no_findings_in_tier": "No findings in this severity tier.",
+        "port_scan_results": "Port Scan Results",
+        "no_port_results": "No port scan results were recorded.",
+        "appendix_evidence": "Appendix: Evidence",
+        "raw_evidence_available": "Raw evidence and SARIF outputs are available for programmatic access.",
+        "view_sarif_with_tooling": "View SARIF with compatible tooling (e.g., GitHub Code Scanning or VS Code extensions).",
+        "severity": "Severity",
+        "count": "Count",
+        "subdomain": "Subdomain",
+        "record": "Record",
+        "values": "Values",
+        "source": "Source",
+        "target": "Target",
+        "port": "Port",
+        "protocol": "Protocol",
+        "status": "Status",
+        "finding": "Finding",
+        "rule": "Rule",
+        "description": "Description",
+        "findings_label": "Findings",
+        "changes_since_last_scan": "Changes Since Last Scan",
+        "previous_run": "Previous run",
+        "previous_scan_time": "Previous scan time",
+        "elapsed_time_days": "Elapsed time",
+        "days": "days",
+        "summary": "Summary",
+        "no_changes_detected": "No changes detected since last scan.",
+        "new_critical_findings": "New Critical Findings",
+        "new_high_findings": "New High Findings",
+        "resolved_findings": "Resolved Findings",
+        "new_subdomains_discovered": "New Subdomains Discovered",
+        "removed_subdomains": "Removed Subdomains",
+        "first_seen_this_scan": "first seen: this scan",
+        "last_seen": "last seen",
+        "status_fixed": "status: fixed",
+        "recommendation": "Recommendation",
+        "and_more": "And {n} more",
+        "new_high_see_http_section": "See HTTP Security Findings section for full details.",
+        "no_new_critical": "No new critical findings.",
+        "no_new_high": "No new high findings.",
+        "no_resolved": "No findings resolved since last scan.",
+        "no_new_subdomains": "No new subdomains discovered.",
+        "trend_analysis": "Trend Analysis",
+        "metric": "Metric",
+        "previous": "Previous",
+        "current": "Current",
+        "change": "Change",
+        "total_findings": "Total findings",
+        "open_ports": "Open ports",
+        "dns_subdomains": "DNS subdomains",
+        "new_critical_reco": "Prioritize immediate remediation of critical findings.",
+        "new_high_reco": "Prioritize remediation of high findings.",
+        "resolved_reco": "Verify resolved remediations remain documented and enforced.",
+        "new_subdomains_reco": "Review whether new subdomains should be publicly accessible.",
+        "removed_subdomains_reco": "Verify removals were intentional and documented.",
+    }
+
+
 class CasmLogoFlowable(Flowable):
     def __init__(self, width: float = 250, height: float = 72, wordmark_font: str = "Helvetica-Bold") -> None:
         super().__init__()
@@ -72,6 +268,7 @@ def generate_pdf_report(
     evidence_store: object | None,
     branding_config: Optional[dict] = None,
     diff_config: Optional[dict] = None,
+    report_lang: str = "en",
 ) -> Path:
     """Generate a PDF report for the given run.
 
@@ -100,6 +297,8 @@ def generate_pdf_report(
     branding = _validate_branding(branding_config)
     diff_settings = _diff_settings(diff_config)
     styles = get_casm_styles(branding)
+    styles["_report_lang"] = "fr" if report_lang == "fr" else "en"
+    styles["_i18n"] = _pdf_text(styles["_report_lang"])
     palette = styles["_palette"]
 
     summary = calculate_summary_stats(evidence_path, targets_path, sarif_path)
@@ -196,6 +395,7 @@ def _later_pages(engagement_id: str, run_id: str, report_date: str, styles: dict
 
 
 def _draw_header(canvas, styles: dict) -> None:
+    t = styles.get("_i18n", _pdf_text("en"))
     canvas.saveState()
     canvas.setStrokeColor(styles["_palette"]["secondary"])
     canvas.setLineWidth(1)
@@ -204,12 +404,13 @@ def _draw_header(canvas, styles: dict) -> None:
     header_font = styles.get("_fonts", {}).get("body_regular", "Helvetica")
     canvas.setFont(header_font, 9)
     canvas.setFillColor(styles["_palette"]["primary"])
-    canvas.drawString(inch + 14, letter[1] - inch + 14, "CASM Security Assessment")
-    canvas.drawRightString(letter[0] - inch, letter[1] - inch + 14, f"Page {canvas.getPageNumber()}")
+    canvas.drawString(inch + 14, letter[1] - inch + 14, t["header_title"])
+    canvas.drawRightString(letter[0] - inch, letter[1] - inch + 14, f"{t['page'] } {canvas.getPageNumber()}")
     canvas.restoreState()
 
 
 def _draw_footer(canvas, engagement_id: str, report_date: str, styles: dict, cover: bool = False) -> None:
+    t = styles.get("_i18n", _pdf_text("en"))
     canvas.saveState()
     canvas.setStrokeColor(colors.lightgrey)
     canvas.setLineWidth(1)
@@ -217,10 +418,10 @@ def _draw_footer(canvas, engagement_id: str, report_date: str, styles: dict, cov
     footer_font = styles.get("_fonts", {}).get("body_regular", "Helvetica")
     canvas.setFont(footer_font, 8)
     canvas.setFillColor(colors.grey)
-    footer_text = styles.get("_footer_text") or "Confidential"
+    footer_text = styles.get("_footer_text") or t["confidential"]
     canvas.drawString(inch, inch - 24, footer_text)
-    canvas.drawCentredString(letter[0] / 2, inch - 24, f"Engagement: {engagement_id}")
-    canvas.drawRightString(letter[0] - inch, inch - 24, f"Date: {report_date}")
+    canvas.drawCentredString(letter[0] / 2, inch - 24, f"{t['engagement']}: {engagement_id}")
+    canvas.drawRightString(letter[0] - inch, inch - 24, f"{t['date']}: {report_date}")
     canvas.restoreState()
 
 
@@ -313,6 +514,7 @@ def calculate_summary_stats(evidence_path: Path, targets_path: Path, sarif_path:
 
 def create_cover_page(engagement_id: str, run_id: str, report_date: str, styles: dict, branding: Optional[dict]) -> list[Flowable]:
     branding = branding or {}
+    t = styles.get("_i18n", _pdf_text("en"))
     casm_version = get_casm_version()
     story: list[Flowable] = []
     story.append(Spacer(1, 1.65 * inch))
@@ -335,22 +537,22 @@ def create_cover_page(engagement_id: str, run_id: str, report_date: str, styles:
         logo.hAlign = "CENTER"
         story.append(logo)
     story.append(Spacer(1, 0.6 * inch))
-    story.append(Paragraph("Security Assessment Report", styles["CoverTitle"]))
+    story.append(Paragraph(t["cover_title"], styles["CoverTitle"]))
     story.append(Spacer(1, 0.2 * inch))
-    story.append(Paragraph(f"Engagement: {engagement_id}", styles["Heading2"]))
-    story.append(Paragraph(f"Run: {run_id}", styles["Heading2"]))
+    story.append(Paragraph(f"{t['engagement']}: {engagement_id}", styles["Heading2"]))
+    story.append(Paragraph(f"{t['run']}: {run_id}", styles["Heading2"]))
     story.append(Spacer(1, 0.4 * inch))
 
     company_name = branding.get("company_name")
     if company_name:
         story.append(Paragraph(company_name, styles["BodyText"]))
-    story.append(Paragraph(f"Report Date: {report_date}", styles["BodyText"]))
+    story.append(Paragraph(f"{t['report_date']}: {report_date}", styles["BodyText"]))
     story.append(Paragraph(f"CASM version: {casm_version}", styles["BodyText"]))
-    story.append(Paragraph(f"Report schema: {SCHEMA_VERSION}", styles["BodyText"]))
+    story.append(Paragraph(f"{t['report_schema']}: {SCHEMA_VERSION}", styles["BodyText"]))
     if branding.get("contact_email"):
-        story.append(Paragraph(f"Contact: {branding.get('contact_email')}", styles["BodyText"]))
+        story.append(Paragraph(f"{t['contact']}: {branding.get('contact_email')}", styles["BodyText"]))
     if branding.get("contact_phone"):
-        story.append(Paragraph(f"Phone: {branding.get('contact_phone')}", styles["BodyText"]))
+        story.append(Paragraph(f"{t['phone']}: {branding.get('contact_phone')}", styles["BodyText"]))
     return story
 
 
@@ -395,26 +597,33 @@ def _draw_casm_wordmark(canvas: Canvas, x: float, y: float, width: float, height
 
 
 def create_executive_summary(summary: SummaryStats, styles: dict) -> list[Flowable]:
-    story: list[Flowable] = [Paragraph("Executive Summary", styles["Heading1"])]
-    story.append(Paragraph("Assessment Overview", styles["Heading2"]))
-    story.append(Paragraph(f"Domains scanned: {summary.domains_scanned}", styles["BodyText"]))
-    story.append(Paragraph(f"DNS subdomains discovered: {len(summary.dns_discoveries)}", styles["BodyText"]))
-    story.append(Paragraph(f"HTTP endpoints tested: {summary.http_attempts}", styles["BodyText"]))
-    story.append(Paragraph(f"Total security findings: {len(summary.findings)}", styles["BodyText"]))
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(t["executive_summary"], styles["Heading1"])]
+    story.append(Paragraph(t["assessment_overview"], styles["Heading2"]))
+    story.append(Paragraph(f"{t['domains_scanned']}: {summary.domains_scanned}", styles["BodyText"]))
+    story.append(Paragraph(f"{t['dns_subdomains_discovered']}: {len(summary.dns_discoveries)}", styles["BodyText"]))
+    story.append(Paragraph(f"{t['http_endpoints_tested']}: {summary.http_attempts}", styles["BodyText"]))
+    story.append(Paragraph(f"{t['total_security_findings']}: {len(summary.findings)}", styles["BodyText"]))
     story.append(Spacer(1, 0.15 * inch))
 
-    story.append(Paragraph("Severity Breakdown", styles["Heading2"]))
+    story.append(Paragraph(t["severity_breakdown"], styles["Heading2"]))
     table = create_severity_table(summary.severity_counts, styles)
     story.append(table)
 
     top_concerns = summary.findings[:5]
     story.append(Spacer(1, 0.2 * inch))
-    story.append(Paragraph("Key Concerns", styles["Heading2"]))
+    story.append(Paragraph(t["key_concerns"], styles["Heading2"]))
     if not top_concerns:
-        story.append(Paragraph("No critical or high severity concerns identified.", styles["BodyText"]))
+        story.append(Paragraph(t["no_critical_high"], styles["BodyText"]))
     else:
+        lang = styles.get("_report_lang", "en")
         for item in top_concerns:
-            story.append(Paragraph(f"- {item.rule_id}: {item.message}", styles["BodyText"]))
+            story.append(
+                Paragraph(
+                    f"- {item.rule_id}: {_translate_http_rule_message_pdf(item.rule_id, item.message, lang)}",
+                    styles["BodyText"],
+                )
+            )
 
     return story
 
@@ -425,46 +634,50 @@ def create_table_of_contents(styles: dict) -> list[Flowable]:
         styles["BodyText"],
         styles["BodyText"],
     ]
-    return [Paragraph("Table of Contents", styles["Heading1"]), toc]
+    t = styles.get("_i18n", _pdf_text("en"))
+    return [Paragraph(t["table_of_contents"], styles["Heading1"]), toc]
 
 
 def create_scope_section(summary: SummaryStats, styles: dict) -> list[Flowable]:
-    story: list[Flowable] = [Paragraph("Scope & Methodology", styles["Heading1"])]
-    story.append(Paragraph("Assessment Scope", styles["Heading2"]))
-    story.append(Paragraph(f"Unique targets assessed: {summary.unique_targets}", styles["BodyText"]))
-    story.append(Paragraph(f"Assessment window: {summary.start_time} to {summary.end_time}", styles["BodyText"]))
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(t["scope_methodology"], styles["Heading1"])]
+    story.append(Paragraph(t["assessment_scope"], styles["Heading2"]))
+    story.append(Paragraph(f"{t['unique_targets_assessed']}: {summary.unique_targets}", styles["BodyText"]))
+    story.append(Paragraph(f"{t['assessment_window']}: {summary.start_time} {t['to']} {summary.end_time}", styles["BodyText"]))
     story.append(Spacer(1, 0.15 * inch))
-    story.append(Paragraph("Methods", styles["Heading2"]))
-    story.append(Paragraph("- DNS enumeration (passive and active sources)", styles["BodyText"]))
-    story.append(Paragraph("- HTTP security verification", styles["BodyText"]))
-    story.append(Paragraph("- TCP port scanning", styles["BodyText"]))
+    story.append(Paragraph(t["methods"], styles["Heading2"]))
+    story.append(Paragraph(f"- {t['method_dns']}", styles["BodyText"]))
+    story.append(Paragraph(f"- {t['method_http']}", styles["BodyText"]))
+    story.append(Paragraph(f"- {t['method_tcp']}", styles["BodyText"]))
     return story
 
 
 def create_dns_section(summary: SummaryStats, styles: dict, palette: dict) -> list[Flowable]:
-    story: list[Flowable] = [Paragraph("DNS Enumeration Results", styles["Heading1"])]
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(t["dns_results"], styles["Heading1"])]
     if not summary.dns_executed:
-        story.append(Paragraph("DNS enumeration was not executed for this run.", styles["BodyText"]))
+        story.append(Paragraph(t["dns_not_executed"], styles["BodyText"]))
         return story
-    story.append(Paragraph(f"Total subdomains discovered: {len(summary.dns_discoveries)}", styles["BodyText"]))
+    story.append(Paragraph(f"{t['total_subdomains_discovered']}: {len(summary.dns_discoveries)}", styles["BodyText"]))
     if summary.dns_discoveries:
         story.extend(create_dns_tables(summary.dns_discoveries, styles, palette))
     else:
-        story.append(Paragraph("No DNS discoveries were recorded.", styles["BodyText"]))
+        story.append(Paragraph(t["no_dns_discoveries_recorded"], styles["BodyText"]))
 
     story.append(Spacer(1, 0.2 * inch))
-    story.append(Paragraph("Security Concerns", styles["Heading2"]))
+    story.append(Paragraph(t["security_concerns"], styles["Heading2"]))
     if summary.wildcard_events:
-        story.append(Paragraph("- Wildcard DNS responses detected.", styles["BodyText"]))
+        story.append(Paragraph(f"- {t['wildcard_dns_detected']}", styles["BodyText"]))
     if summary.blocked_domains:
-        story.append(Paragraph("- Some domains were blocked by scope policy.", styles["BodyText"]))
+        story.append(Paragraph(f"- {t['domains_blocked_scope']}", styles["BodyText"]))
     if not summary.wildcard_events and not summary.blocked_domains:
-        story.append(Paragraph("No DNS-specific concerns identified.", styles["BodyText"]))
+        story.append(Paragraph(t["no_dns_concerns"], styles["BodyText"]))
     return story
 
 
 def create_findings_section(findings: list[FindingRecord], styles: dict, palette: dict) -> list[Flowable]:
-    story: list[Flowable] = [Paragraph("HTTP Security Findings", styles["Heading1"])]
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(t["http_security_findings"], styles["Heading1"])]
     grouped = _group_findings(findings)
     first = True
     for severity in SEVERITY_ORDER:
@@ -474,10 +687,10 @@ def create_findings_section(findings: list[FindingRecord], styles: dict, palette
         if not first:
             story.append(PageBreak())
         first = False
-        story.append(Paragraph(f"{heading} Findings ({len(entries)})", styles["Heading1"]))
+        story.append(Paragraph(f"{heading} {t['findings_label']} ({len(entries)})", styles["Heading1"]))
         story.append(Spacer(1, 0.1 * inch))
         if not entries:
-            story.append(Paragraph("No findings in this severity tier.", styles["BodyText"]))
+            story.append(Paragraph(t["no_findings_in_tier"], styles["BodyText"]))
             continue
         for idx, finding in enumerate(entries, start=1):
             story.append(_finding_block(idx, finding, styles, style_key))
@@ -485,9 +698,10 @@ def create_findings_section(findings: list[FindingRecord], styles: dict, palette
 
 
 def create_port_scan_section(summary: SummaryStats, styles: dict) -> list[Flowable]:
-    story: list[Flowable] = [Paragraph("Port Scan Results", styles["Heading1"])]
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(t["port_scan_results"], styles["Heading1"])]
     if not summary.port_events:
-        story.append(Paragraph("No port scan results were recorded.", styles["BodyText"]))
+        story.append(Paragraph(t["no_port_results"], styles["BodyText"]))
         return story
     table = create_port_table(summary.port_events, styles)
     story.append(table)
@@ -495,16 +709,18 @@ def create_port_scan_section(summary: SummaryStats, styles: dict) -> list[Flowab
 
 
 def create_appendix(summary: SummaryStats, styles: dict, output_dir: Path) -> list[Flowable]:
-    story: list[Flowable] = [Paragraph("Appendix: Evidence", styles["Heading1"])]
-    story.append(Paragraph("Raw evidence and SARIF outputs are available for programmatic access.", styles["BodyText"]))
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(t["appendix_evidence"], styles["Heading1"])]
+    story.append(Paragraph(t["raw_evidence_available"], styles["BodyText"]))
     story.append(Paragraph(f"Evidence: {output_dir / 'evidence.jsonl'}", styles["Code"]))
     story.append(Paragraph(f"SARIF: {output_dir / 'results.sarif'}", styles["Code"]))
-    story.append(Paragraph("View SARIF with compatible tooling (e.g., GitHub Code Scanning or VS Code extensions).", styles["BodyText"]))
+    story.append(Paragraph(t["view_sarif_with_tooling"], styles["BodyText"]))
     return story
 
 
 def create_severity_table(severity_counts: dict, styles: dict) -> Table:
-    data = [["Severity", "Count"]]
+    t = styles.get("_i18n", _pdf_text("en"))
+    data = [[t.get("severity", "Severity"), t.get("count", "Count")]]
     for level in SEVERITY_ORDER:
         data.append([level.upper(), str(severity_counts.get(level, 0))])
     table = Table(data, hAlign="LEFT", colWidths=[2.2 * inch, 1.0 * inch])
@@ -523,7 +739,8 @@ def create_severity_table(severity_counts: dict, styles: dict) -> Table:
 
 
 def create_dns_tables(dns_discoveries: list[dict], styles: dict, palette: dict) -> list:
-    rows: list[list[object]] = [["Subdomain", "Record", "Values", "Source"]]
+    t = styles.get("_i18n", _pdf_text("en"))
+    rows: list[list[object]] = [[t.get("subdomain", "Subdomain"), t.get("record", "Record"), t.get("values", "Values"), t.get("source", "Source")]]
     for item in dns_discoveries:
         data = item.get("data", {}) if isinstance(item.get("data"), dict) else item
         values = ", ".join(data.get("values", [])) if isinstance(data.get("values"), list) else str(data.get("values", ""))
@@ -564,7 +781,8 @@ def create_dns_tables(dns_discoveries: list[dict], styles: dict, palette: dict) 
 
 
 def create_port_table(port_events: list[dict], styles: dict) -> Table:
-    rows = [["Target", "Port", "Protocol", "Status"]]
+    t = styles.get("_i18n", _pdf_text("en"))
+    rows = [[t.get("target", "Target"), t.get("port", "Port"), t.get("protocol", "Protocol"), t.get("status", "Status")]]
     for event in port_events:
         data = event.get("data", {}) if isinstance(event.get("data"), dict) else {}
         target = event.get("target", "")
@@ -588,14 +806,62 @@ def create_port_table(port_events: list[dict], styles: dict) -> Table:
 
 
 def _finding_block(index: int, finding: FindingRecord, styles: dict, severity_style: str) -> KeepTogether:
+    t = styles.get("_i18n", _pdf_text("en"))
+    lang = styles.get("_report_lang", "en")
     content: list[Flowable] = [
-        Paragraph(f"Finding {index}", styles["Heading2"]),
-        Paragraph(f"Severity: {finding.severity.upper()}", styles.get(severity_style, styles["BodyText"])),
-        Paragraph(f"Target: {finding.url}", styles["BodyText"]),
-        Paragraph(f"Rule: {finding.rule_id}", styles["BodyText"]),
-        Paragraph(f"Description: {finding.message}", styles["BodyText"]),
+        Paragraph(f"{t.get('finding', 'Finding')} {index}", styles["Heading2"]),
+        Paragraph(f"{t.get('severity', 'Severity')}: {finding.severity.upper()}", styles.get(severity_style, styles["BodyText"])),
+        Paragraph(f"{t.get('target', 'Target')}: {finding.url}", styles["BodyText"]),
+        Paragraph(f"{t.get('rule', 'Rule')}: {finding.rule_id}", styles["BodyText"]),
+        Paragraph(
+            f"{t.get('description', 'Description')}: {_translate_http_rule_message_pdf(finding.rule_id, finding.message, lang)}",
+            styles["BodyText"],
+        ),
     ]
     return KeepTogether(content)
+
+
+def _translate_http_rule_message_pdf(rule_id: str, message: str, lang: str) -> str:
+    if lang != "fr":
+        return message
+    mapping = {
+        "MISSING_HSTS": "L'en-tête Strict-Transport-Security est absent.",
+        "HTTP_NOT_HTTPS": "Le point de terminaison est exposé en HTTP (sans TLS). HSTS ne s'applique pas; envisagez une exposition en HTTPS.",
+        "MISSING_CSP": "L'en-tête Content-Security-Policy est absent.",
+        "MISSING_X_FRAME_OPTIONS": "L'en-tête X-Frame-Options est absent.",
+        "MISSING_X_CONTENT_TYPE_OPTIONS": "L'en-tête X-Content-Type-Options est absent.",
+        "MISSING_REFERRER_POLICY": "L'en-tête Referrer-Policy est absent.",
+        "HTTPS_DOWNGRADE_REDIRECT": "Le point de terminaison HTTPS redirige vers HTTP.",
+        "MISSING_CONTENT_TYPE": "L'en-tête Content-Type est absent.",
+        "MISSING_ANTI_EMBEDDING": "La protection anti-encapsulation (frame-ancestors/X-Frame-Options) est insuffisante.",
+        "MISSING_COOP": "L'en-tête Cross-Origin-Opener-Policy est absent.",
+        "MISSING_COEP": "L'en-tête Cross-Origin-Embedder-Policy est absent.",
+        "MISSING_CORP": "L'en-tête Cross-Origin-Resource-Policy est absent.",
+        "MISSING_CHARSET": "Le charset est absent du Content-Type.",
+        "CSP_MISSING_FRAME_ANCESTORS": "Content-Security-Policy ne contient pas la directive frame-ancestors.",
+        "TLS_CERT_EXPIRES_SOON": "Le certificat TLS expire bientôt.",
+    }
+    if rule_id in mapping:
+        return mapping[rule_id]
+    direct_map = {
+        "Endpoint is served over HTTP (no TLS). HSTS is not applicable; consider serving over HTTPS.": "Le point de terminaison est exposé en HTTP (sans TLS). HSTS ne s'applique pas; envisagez une exposition en HTTPS.",
+        "Endpoint is served over HTTP (no TLS).": "Le point de terminaison est exposé en HTTP (sans TLS).",
+        "Missing Strict-Transport-Security header.": "L'en-tête Strict-Transport-Security est absent.",
+        "Missing Content-Security-Policy header.": "L'en-tête Content-Security-Policy est absent.",
+        "Missing X-Frame-Options header.": "L'en-tête X-Frame-Options est absent.",
+        "Missing X-Content-Type-Options header.": "L'en-tête X-Content-Type-Options est absent.",
+        "Missing Referrer-Policy header.": "L'en-tête Referrer-Policy est absent.",
+        "HTTPS endpoint redirects to HTTP.": "Le point de terminaison HTTPS redirige vers HTTP.",
+        "Missing Content-Type header.": "L'en-tête Content-Type est absent.",
+        "Content-Type is missing an explicit charset parameter for a text response.": "Le Content-Type ne précise pas explicitement de paramètre charset pour une réponse texte.",
+        "Content-Security-Policy is missing frame-ancestors directive.": "Content-Security-Policy ne contient pas la directive frame-ancestors.",
+        "No CSP frame-ancestors or X-Frame-Options found.": "Aucune protection anti-encapsulation n'a été trouvée (ni CSP frame-ancestors ni X-Frame-Options).",
+        "Missing Cross-Origin-Opener-Policy (COOP) header (web_hardening profile).": "L'en-tête Cross-Origin-Opener-Policy (COOP) est absent (profil web_hardening).",
+        "Missing Cross-Origin-Embedder-Policy (COEP) header (web_hardening profile).": "L'en-tête Cross-Origin-Embedder-Policy (COEP) est absent (profil web_hardening).",
+        "Missing Cross-Origin-Resource-Policy (CORP) header (web_hardening profile).": "L'en-tête Cross-Origin-Resource-Policy (CORP) est absent (profil web_hardening).",
+        "TLS certificate expires soon.": "Le certificat TLS expire bientôt.",
+    }
+    return direct_map.get(message, message)
 
 
 def _group_findings(findings: list[FindingRecord]) -> dict:
@@ -788,6 +1054,7 @@ def create_diff_section(
     """
     if not settings.get("enabled", True):
         return []
+    t = styles.get("_i18n", _pdf_text("en"))
 
     current_sarif = output_dir / "results.sarif"
     if not current_sarif.exists():
@@ -834,17 +1101,17 @@ def create_diff_section(
         new_dns, removed_dns = _diff_dns(baseline_events, current_events)
 
     story: list[Flowable] = []
-    story.append(Paragraph("Changes Since Last Scan", styles["Heading1"]))
-    story.append(Paragraph(f"Previous run: {baseline.run_id}", styles["BodyText"]))
+    story.append(Paragraph(t["changes_since_last_scan"], styles["Heading1"]))
+    story.append(Paragraph(f"{t['previous_run']}: {baseline.run_id}", styles["BodyText"]))
     if baseline.timestamp:
-        story.append(Paragraph(f"Previous scan time: {_format_datetime(baseline.timestamp)}", styles["BodyText"]))
+        story.append(Paragraph(f"{t['previous_scan_time']}: {_format_datetime(baseline.timestamp)}", styles["BodyText"]))
     if baseline.age_days is not None:
-        story.append(Paragraph(f"Elapsed time: {baseline.age_days} days", styles["BodyText"]))
+        story.append(Paragraph(f"{t['elapsed_time_days']}: {baseline.age_days} {t['days']}", styles["BodyText"]))
     if baseline.warning:
         story.append(Paragraph(f"Note: {baseline.warning}", styles["BodyText"]))
     story.append(Spacer(1, 0.15 * inch))
 
-    story.append(Paragraph("Summary", styles["Heading2"]))
+    story.append(Paragraph(t["summary"], styles["Heading2"]))
     story.append(_diff_summary_table(baseline_counts, current_counts, baseline_dns, current_dns, baseline_ports, current_ports, styles))
     story.append(Spacer(1, 0.2 * inch))
 
@@ -853,7 +1120,7 @@ def create_diff_section(
     resolved = diff.removed
 
     if not diff.added and not diff.removed and not new_dns and not removed_dns:
-        story.append(Paragraph("No changes detected since last scan.", styles["BodyText"]))
+        story.append(Paragraph(t["no_changes_detected"], styles["BodyText"]))
         return story
 
     story.extend(
@@ -1073,16 +1340,17 @@ def _diff_summary_table(
     current_ports: int,
     styles: dict,
 ) -> Table:
-    rows = [["Metric", "Previous", "Current", "Change"]]
+    t = styles.get("_i18n", _pdf_text("en"))
+    rows = [[t["metric"], t["previous"], t["current"], t["change"]]]
     metrics = [
-        ("Total findings", baseline_counts.get("total", 0), current_counts.get("total", 0)),
+        (t["total_findings"], baseline_counts.get("total", 0), current_counts.get("total", 0)),
         ("Critical", baseline_counts.get("critical", 0), current_counts.get("critical", 0)),
         ("High", baseline_counts.get("high", 0), current_counts.get("high", 0)),
         ("Medium", baseline_counts.get("medium", 0), current_counts.get("medium", 0)),
         ("Low", baseline_counts.get("low", 0), current_counts.get("low", 0)),
         ("Info", baseline_counts.get("info", 0), current_counts.get("info", 0)),
-        ("DNS subdomains", baseline_dns, current_dns),
-        ("Open ports", baseline_ports, current_ports),
+        (t["dns_subdomains"], baseline_dns, current_dns),
+        (t["open_ports"], baseline_ports, current_ports),
     ]
     for label, prev, curr in metrics:
         rows.append([label, str(prev), str(curr), _format_change(prev, curr)])
@@ -1125,9 +1393,10 @@ def _render_new_critical(
     limit: int,
 ) -> list[Flowable]:
     """Render detailed new critical findings with remediation guidance."""
-    story: list[Flowable] = [Paragraph(f"New Critical Findings ({len(findings)})", styles["Heading2"])]
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(f"{t['new_critical_findings']} ({len(findings)})", styles["Heading2"])]
     if not findings:
-        story.append(Paragraph("No new critical findings.", styles["BodyText"]))
+        story.append(Paragraph(t["no_new_critical"], styles["BodyText"]))
         return story
     shown = findings[:limit]
     for idx, item in enumerate(shown, start=1):
@@ -1137,11 +1406,12 @@ def _render_new_critical(
         remediation = record.remediation if record and record.remediation else "Review and remediate according to security policy."
         story.append(Paragraph(f"{idx}. {item.rule_id} @ {target}", styles["BodyText"]))
         story.append(Paragraph(f"Description: {description}", styles["BodyText"]))
-        story.append(Paragraph("First seen: this scan", styles["BodyText"]))
-        story.append(Paragraph(f"Recommendation: {remediation}", styles["BodyText"]))
+        story.append(Paragraph(t["first_seen_this_scan"], styles["BodyText"]))
+        story.append(Paragraph(f"{t['recommendation']}: {remediation}", styles["BodyText"]))
         story.append(Spacer(1, 0.1 * inch))
     if len(findings) > limit:
-        story.append(Paragraph(f"And {len(findings) - limit} more critical findings.", styles["BodyText"]))
+        story.append(Paragraph(t["and_more"].format(n=len(findings) - limit), styles["BodyText"]))
+    story.append(Paragraph(t["new_critical_reco"], styles["BodyText"]))
     return story
 
 
@@ -1152,18 +1422,20 @@ def _render_new_high(
     limit: int,
 ) -> list[Flowable]:
     """Render a concise list of new high findings."""
-    story: list[Flowable] = [Paragraph(f"New High Findings ({len(findings)})", styles["Heading2"])]
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(f"{t['new_high_findings']} ({len(findings)})", styles["Heading2"])]
     if not findings:
-        story.append(Paragraph("No new high findings.", styles["BodyText"]))
+        story.append(Paragraph(t["no_new_high"], styles["BodyText"]))
         return story
     shown = findings[:limit]
     for item in shown:
         record = current_records.get(item.fingerprint)
         target = record.uri if record else item.uri
-        story.append(Paragraph(f"- {item.rule_id} on {target} (first seen: this scan)", styles["BodyText"]))
+        story.append(Paragraph(f"- {item.rule_id} on {target} ({t['first_seen_this_scan']})", styles["BodyText"]))
     if len(findings) > limit:
-        story.append(Paragraph(f"And {len(findings) - limit} more high findings.", styles["BodyText"]))
-    story.append(Paragraph("See HTTP Security Findings section for full details.", styles["BodyText"]))
+        story.append(Paragraph(t["and_more"].format(n=len(findings) - limit), styles["BodyText"]))
+    story.append(Paragraph(t["new_high_see_http_section"], styles["BodyText"]))
+    story.append(Paragraph(t["new_high_reco"], styles["BodyText"]))
     return story
 
 
@@ -1175,9 +1447,10 @@ def _render_resolved(
     baseline_time: datetime | None,
 ) -> list[Flowable]:
     """Render resolved findings grouped by severity."""
-    story: list[Flowable] = [Paragraph("Resolved Findings", styles["Heading2"])]
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(t["resolved_findings"], styles["Heading2"])]
     if not findings:
-        story.append(Paragraph("No findings resolved since last scan.", styles["BodyText"]))
+        story.append(Paragraph(t["no_resolved"], styles["BodyText"]))
         return story
     grouped = {"critical": [], "high": [], "medium": [], "low": [], "info": []}
     for item in findings:
@@ -1200,7 +1473,7 @@ def _render_resolved(
             record = baseline_records.get(item.fingerprint)
             target = record.uri if record else item.uri
             last_seen = _format_datetime(baseline_time) if baseline_time else "baseline"
-            story.append(Paragraph(f"- {item.rule_id} on {target} (last seen: {last_seen}, status: fixed)", styles["BodyText"]))
+            story.append(Paragraph(f"- {item.rule_id} on {target} ({t['last_seen']}: {last_seen}, {t['status_fixed']})", styles["BodyText"]))
         if severity not in {"critical", "high"}:
             shown += len(display_items)
         if remaining > 0:
@@ -1218,51 +1491,42 @@ def _render_dns_changes(
     dns_note: str | None,
 ) -> list[Flowable]:
     """Render new/removed subdomains for DNS diffs."""
-    story: list[Flowable] = [Paragraph(f"New Subdomains Discovered ({len(new_dns)})", styles["Heading2"])]
+    t = styles.get("_i18n", _pdf_text("en"))
+    story: list[Flowable] = [Paragraph(f"{t['new_subdomains_discovered']} ({len(new_dns)})", styles["Heading2"])]
     if dns_note:
         story.append(Paragraph(dns_note, styles["BodyText"]))
         return story
     if not new_dns:
-        story.append(Paragraph("No new subdomains discovered.", styles["BodyText"]))
+        story.append(Paragraph(t["no_new_subdomains"], styles["BodyText"]))
     else:
         for item in new_dns[:max_new]:
             values = ", ".join(item.get("values", []))
             story.append(
                 Paragraph(
-                    f"- {item.get('subdomain')} ({item.get('record_type')}): {values} (first seen: this scan)",
+                    f"- {item.get('subdomain')} ({item.get('record_type')}): {values} ({t['first_seen_this_scan']})",
                     styles["BodyText"],
                 )
             )
         if len(new_dns) > max_new:
-            story.append(Paragraph(f"And {len(new_dns) - max_new} more new subdomains.", styles["BodyText"]))
+            story.append(Paragraph(t["and_more"].format(n=len(new_dns) - max_new), styles["BodyText"]))
         if len(new_dns) > 10:
-            story.append(
-                Paragraph(
-                    "Recommendation: Review whether new subdomains should be publicly accessible.",
-                    styles["BodyText"],
-                )
-            )
+            story.append(Paragraph(t["new_subdomains_reco"], styles["BodyText"]))
 
     if removed_dns:
         story.append(Spacer(1, 0.15 * inch))
-        story.append(Paragraph(f"Removed Subdomains ({len(removed_dns)})", styles["Heading2"]))
+        story.append(Paragraph(f"{t['removed_subdomains']} ({len(removed_dns)})", styles["Heading2"]))
         for item in removed_dns[:max_removed]:
             values = ", ".join(item.get("values", []))
             last_seen = _format_datetime(baseline_time) if baseline_time else "baseline"
             story.append(
                 Paragraph(
-                    f"- {item.get('subdomain')} ({item.get('record_type')}): {values} (last seen: {last_seen})",
+                    f"- {item.get('subdomain')} ({item.get('record_type')}): {values} ({t['last_seen']}: {last_seen})",
                     styles["BodyText"],
                 )
             )
         if len(removed_dns) > max_removed:
-            story.append(Paragraph(f"And {len(removed_dns) - max_removed} more removed subdomains.", styles["BodyText"]))
-        story.append(
-            Paragraph(
-                "Recommendation: Verify removals were intentional and documented.",
-                styles["BodyText"],
-            )
-        )
+            story.append(Paragraph(t["and_more"].format(n=len(removed_dns) - max_removed), styles["BodyText"]))
+        story.append(Paragraph(t["removed_subdomains_reco"], styles["BodyText"]))
     return story
 
 

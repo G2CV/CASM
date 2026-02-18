@@ -30,6 +30,12 @@ Use your CI platform SARIF uploader (GitHub Code Scanning or equivalent).
 casm run unified --config scopes/scope.yaml --format markdown,sarif,pdf --dry-run=false
 ```
 
+For French stakeholder reports:
+
+```bash
+casm run unified --config scopes/scope.yaml --format markdown,pdf --report-lang fr --dry-run=false
+```
+
 ## Step 4: Migrate historical runs if schema changes
 
 ```bash

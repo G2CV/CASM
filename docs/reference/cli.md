@@ -51,6 +51,17 @@ casm
 | `--dns-wordlist` | path | no | scope/default |
 | `--detailed` | flag | no | false |
 | `--format` | csv/all | no | `all` |
+| `--report-lang` | enum (`en`,`fr`) | no | `en` |
+
+Language examples:
+
+```bash
+# French markdown + PDF report output
+casm run unified --config scopes/scope.yaml --format markdown,pdf --report-lang fr --dry-run=false
+
+# English (default)
+casm run unified --config scopes/scope.yaml --format markdown,pdf --report-lang en --dry-run=false
+```
 
 ## `casm run dns-enum`
 

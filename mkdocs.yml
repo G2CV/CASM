@@ -1,7 +1,68 @@
 site_name: CASM Documentation
 site_description: Continuous Attack Surface Monitoring docs
 theme:
-  name: mkdocs
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+extra:
+  alternate:
+    - name: English
+      link: /
+      lang: en
+    - name: Francais
+      link: /fr/
+      lang: fr
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: fr
+          name: Francais
+          build: true
+          nav_translations:
+            Home: Accueil
+            Architecture: Architecture
+            Overview: Vue d'ensemble
+            Data Flow: Flux de donnees
+            Python-Go Bridge: Pont Python-Go
+            Tutorials: Tutoriels
+            Setup for Beginners: Installation debutants
+            Tutorial 1 Hello World: Tutoriel 1 Hello World
+            Tutorial 2 Real Use Case: Tutoriel 2 Cas reel
+            Tutorial 3 Advanced Integration: Tutoriel 3 Integration avancee
+            How-To: Guides pratiques
+            Add Python Module: Ajouter un module Python
+            Add Go Package: Ajouter un package Go
+            Extend Interface: Etendre l'interface
+            Debug Cross Language: Debug cross-language
+            Testing: Tests
+            Profile Performance: Profiling performance
+            Contributing: Contribution
+            Reference: Reference
+            Component Inventory: Inventaire composants
+            Data Structures: Structures de donnees
+            Python API: API Python
+            Function Signature Matrix: Matrice signatures
+            Go API: API Go
+            Function Catalog: Catalogue fonctions
+            CLI: CLI
+            Configuration: Configuration
+            Glossary: Glossaire
+            Explanation: Explications
+            Design Decisions: Decisions de conception
+            Trade-offs: Compromis
+            Security Model: Modele de securite
+            Performance: Performance
 nav:
   - Home: index.md
   - Architecture:

@@ -463,3 +463,40 @@ def test_render_unified_report_warns_on_incomplete_targets(tmp_path) -> None:
     )
 
     assert "Warning: http_verify completed fewer targets" in report
+
+
+def test_render_unified_report_supports_french(tmp_path) -> None:
+    scope = Scope(
+        engagement_id="eng",
+        allowed_domains=[],
+        allowed_ips=[],
+        allowed_ports=[80],
+        allowed_protocols=["tcp"],
+        seed_targets=["example.com"],
+        max_rate=1.0,
+        max_concurrency=1,
+    )
+    sarif_path = tmp_path / "results.sarif"
+    sarif_path.write_text(
+        json.dumps(
+            {
+                "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+                "version": "2.1.0",
+                "runs": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    probe_result = ToolResult(ok=True, blocked_reason=None, findings=[])
+    report = render_unified_report(
+        scope,
+        "run-1",
+        probe_result,
+        str(sarif_path),
+        [],
+        report_lang="fr",
+    )
+
+    assert "# Rapport unifié CASM" in report
+    assert "## Résumé exécutif" in report
+    assert "## Périmètre et méthode" in report

@@ -56,6 +56,7 @@ def run_unified(
     dns_tool_path: str | None = None,
     dns_enabled: bool | None = None,
     dns_wordlist: str | None = None,
+    report_lang: str = "en",
 ) -> UnifiedOutputs:
     """Run probe + optional DNS + HTTP verify and merge artifacts.
 
@@ -71,6 +72,7 @@ def run_unified(
         dns_tool_path (str | None): Path to DNS enum tool (if enabled).
         dns_enabled (bool | None): Force DNS enum on/off regardless of scope.
         dns_wordlist (str | None): Override DNS wordlist for active discovery.
+        report_lang (str): Report language (`en` or `fr`).
 
     Returns:
         UnifiedOutputs: Paths to merged evidence, SARIF, and report artifacts.
@@ -194,6 +196,7 @@ def run_unified(
         import_summary=import_summary,
         expected_http_targets=expected_http_targets,
         detailed_report=detailed_report,
+        report_lang=report_lang,
     )
     Path(report_path).write_text(report_md, encoding="utf-8")
 
@@ -536,7 +539,10 @@ def render_unified_report(
     import_summary: ImportSummary | None = None,
     expected_http_targets: int | None = None,
     detailed_report: bool = False,
+    report_lang: str = "en",
 ) -> str:
+    lang = "fr" if report_lang == "fr" else "en"
+    tr = _report_text(lang)
     http_findings = []
     if Path(http_sarif_path).exists():
         sarif = json.loads(Path(http_sarif_path).read_text(encoding="utf-8"))
@@ -557,33 +563,33 @@ def render_unified_report(
     dns_wildcards = [item for item in evidence if item.get("type") == "dns_wildcard_detected"]
 
     lines = [
-        "# CASM Unified Report",
-        "## Continuous Attack Surface Monitoring",
+        tr["title"],
+        tr["subtitle"],
         "",
-        f"Report schema: {SCHEMA_VERSION}",
+        f"{tr['report_schema']}: {SCHEMA_VERSION}",
         "",
-        f"Engagement: {scope.engagement_id}",
-        f"Run: {run_id}",
+        f"{tr['engagement']}: {scope.engagement_id}",
+        f"{tr['run']}: {run_id}",
         "",
-        "## Executive Summary",
-        f"- Open ports found: {len(probe_result.findings)}.",
-        f"- DNS subdomains discovered: {len(dns_discoveries)}.",
-        f"- HTTP findings: {len(http_findings)}.",
-        f"- HTTP attempts observed: {http_attempts}.",
-        f"- HTTP responses observed: {http_responses}.",
-        f"- HTTP errors observed: {http_errors}.",
-        f"- HTTP blocked observed: {http_blocked}.",
+        f"## {tr['executive_summary']}",
+        f"- {tr['open_ports_found']}: {len(probe_result.findings)}.",
+        f"- {tr['dns_subdomains_discovered']}: {len(dns_discoveries)}.",
+        f"- {tr['http_findings']}: {len(http_findings)}.",
+        f"- {tr['http_attempts_observed']}: {http_attempts}.",
+        f"- {tr['http_responses_observed']}: {http_responses}.",
+        f"- {tr['http_errors_observed']}: {http_errors}.",
+        f"- {tr['http_blocked_observed']}: {http_blocked}.",
         "",
-        "## Scope & Method",
-        f"Seed targets: {', '.join(scope.seed_targets)}",
-        f"Allowed ports: {', '.join(str(p) for p in scope.allowed_ports)}",
-        f"Allowed protocols: {', '.join(scope.allowed_protocols)}",
+        f"## {tr['scope_method']}",
+        f"{tr['seed_targets']}: {', '.join(scope.seed_targets)}",
+        f"{tr['allowed_ports']}: {', '.join(str(p) for p in scope.allowed_ports)}",
+        f"{tr['allowed_protocols']}: {', '.join(scope.allowed_protocols)}",
         "",
-        "## DNS Enumeration Results",
+        f"## {tr['dns_enum_results']}",
     ]
 
     if dns_discoveries:
-        lines.append(f"Discovered subdomains: {len(dns_discoveries)}")
+        lines.append(f"{tr['discovered_subdomains']}: {len(dns_discoveries)}")
         for item in dns_discoveries[:15]:
             data = item.get("data", {}) if isinstance(item.get("data"), dict) else {}
             subdomain = data.get("subdomain") or item.get("target")
@@ -592,10 +598,10 @@ def render_unified_report(
             value_str = ", ".join(values) if values else "-"
             lines.append(f"- {subdomain} -> {record_type} {value_str}")
     else:
-        lines.append("No DNS discoveries.")
+        lines.append(tr["no_dns_discoveries"])
 
     if dns_wildcards:
-        lines.append("Wildcard DNS detected:")
+        lines.append(tr["wildcard_dns_detected"])
         for item in dns_wildcards[:5]:
             data = item.get("data", {}) if isinstance(item.get("data"), dict) else {}
             domain = data.get("domain") or item.get("target")
@@ -604,77 +610,232 @@ def render_unified_report(
             lines.append(f"- {domain} -> {value_str}")
 
     lines.append("")
-    lines.append("## Findings (probe)")
+    lines.append(f"## {tr['findings_probe']}")
 
     if import_summary:
-        lines[lines.index("## Scope & Method") + 1 : lines.index("## Scope & Method") + 1] = [
-            "Method: Imported targets file",
-            f"Targets file: {import_summary.source_path}",
-            f"Imported targets: {import_summary.total_targets}",
-            f"Deduped targets: {import_summary.deduped_targets}",
-            f"Allowed targets: {import_summary.allowed_targets}",
-            f"Blocked targets: {import_summary.blocked_targets}",
-            f"Attempted targets: {import_summary.attempted_targets}",
-            f"Skipped targets: {import_summary.skipped_targets}",
+        lines[lines.index(f"## {tr['scope_method']}") + 1 : lines.index(f"## {tr['scope_method']}") + 1] = [
+            f"{tr['method']}: {tr['imported_targets_file']}",
+            f"{tr['targets_file']}: {import_summary.source_path}",
+            f"{tr['imported_targets']}: {import_summary.total_targets}",
+            f"{tr['deduped_targets']}: {import_summary.deduped_targets}",
+            f"{tr['allowed_targets']}: {import_summary.allowed_targets}",
+            f"{tr['blocked_targets']}: {import_summary.blocked_targets}",
+            f"{tr['attempted_targets']}: {import_summary.attempted_targets}",
+            f"{tr['skipped_targets']}: {import_summary.skipped_targets}",
         ]
 
     if not probe_result.findings:
-        lines.append("No probe findings.")
+        lines.append(tr["no_probe_findings"])
     for finding in probe_result.findings:
+        finding_title = _translate_probe_finding_title(finding.title, lang)
+        finding_summary = _translate_http_rule_message(finding.title, finding.summary, lang)
         lines.extend(
             [
                 "",
-                f"### {finding.title}",
-                f"Severity: {finding.severity}",
-                f"Target: {finding.target}",
-                f"Summary: {finding.summary}",
+                f"### {finding_title}",
+                f"{tr['severity']}: {finding.severity}",
+                f"{tr['target']}: {finding.target}",
+                f"{tr['summary']}: {finding_summary}",
             ]
         )
 
-    lines.extend(["", "## Findings (http_verify)"])
+    lines.extend(["", f"## {tr['findings_http_verify']}"])
     if not http_findings:
         if http_responses or http_attempts:
-            lines.append("No http_verify findings emitted by the tool.")
+            lines.append(tr["no_http_verify_emitted"])
         else:
-            lines.append("No http_verify findings.")
+            lines.append(tr["no_http_verify_findings"])
     if aggregates:
         for entry in aggregates:
+            localized_summary = _translate_http_rule_message(entry["rule_id"], entry["summary"], lang)
             lines.extend(
                 [
                     "",
                     f"### {entry['rule_id']} ({entry['count']} endpoints affected) — {entry['severity']}",
-                    entry["summary"],
-                    f"First detected: {entry['first_seen']}",
-                    f"Last detected: {entry['last_seen']}",
-                    "Affected endpoints:",
+                    localized_summary,
+                    f"{tr['first_detected']}: {entry['first_seen']}",
+                    f"{tr['last_detected']}: {entry['last_seen']}",
+                    f"{tr['affected_endpoints']}:",
                     *[f"- {value}" for value in entry["endpoints"]],
                 ]
             )
             if entry["more_endpoints"]:
-                lines.append(f"- ... and {entry['more_endpoints']} others")
+                lines.append(f"- ... {tr['and_n_others'].format(n=entry['more_endpoints'])}")
             if entry["evidence_ids"]:
-                lines.append(f"Evidence: {', '.join(entry['evidence_ids'])}")
+                lines.append(f"{tr['evidence']}: {', '.join(entry['evidence_ids'])}")
 
     if detailed_report and http_findings:
-        lines.extend(["", "## Findings (http_verify, detailed)"])
+        lines.extend(["", f"## {tr['findings_http_verify_detailed']}"])
         for result in http_findings:
             message = result.get("message", {}).get("text", "")
             rule_id = result.get("ruleId", "")
+            localized_message = _translate_http_rule_message(rule_id, message, lang)
             location = result.get("locations", [{}])[0]
             uri = (
                 location.get("physicalLocation", {})
                 .get("artifactLocation", {})
                 .get("uri", "")
             )
-            lines.extend(["", f"### {rule_id}", f"Target: {uri}", f"Summary: {message}"])
+            lines.extend(["", f"### {rule_id}", f"{tr['target']}: {uri}", f"{tr['summary']}: {localized_message}"])
 
     if expected_http_targets is not None and http_attempts < expected_http_targets:
-        lines.append(
-            "Warning: http_verify completed fewer targets than scheduled; check tool timeout or errors."
-        )
+        lines.append(tr["warning_incomplete_http_targets"])
 
-    lines.extend(["", "## Scan Telemetry", f"Events: {len(evidence)}"])
+    lines.extend(["", f"## {tr['scan_telemetry']}", f"{tr['events']}: {len(evidence)}"])
     return "\n".join(lines)
+
+
+def _report_text(lang: str) -> dict[str, str]:
+    if lang == "fr":
+        return {
+            "title": "# Rapport unifié CASM",
+            "subtitle": "## Supervision continue de la surface d'attaque",
+            "report_schema": "Schéma du rapport",
+            "engagement": "Engagement",
+            "run": "Exécution",
+            "executive_summary": "Résumé exécutif",
+            "open_ports_found": "Ports ouverts détectés",
+            "dns_subdomains_discovered": "Sous-domaines DNS découverts",
+            "http_findings": "Constats HTTP",
+            "http_attempts_observed": "Tentatives HTTP observées",
+            "http_responses_observed": "Réponses HTTP observées",
+            "http_errors_observed": "Erreurs HTTP observées",
+            "http_blocked_observed": "Blocages HTTP observés",
+            "scope_method": "Périmètre et méthode",
+            "seed_targets": "Cibles initiales",
+            "allowed_ports": "Ports autorisés",
+            "allowed_protocols": "Protocoles autorisés",
+            "dns_enum_results": "Resultats de l'enumeration DNS",
+            "discovered_subdomains": "Sous-domaines découverts",
+            "no_dns_discoveries": "Aucune découverte DNS.",
+            "wildcard_dns_detected": "Wildcard DNS détecté :",
+            "findings_probe": "Constats (probe)",
+            "method": "Methode",
+            "imported_targets_file": "fichier de cibles importé",
+            "targets_file": "Fichier de cibles",
+            "imported_targets": "Cibles importées",
+            "deduped_targets": "Cibles dédupliquées",
+            "allowed_targets": "Cibles autorisées",
+            "blocked_targets": "Cibles bloquées",
+            "attempted_targets": "Cibles tentées",
+            "skipped_targets": "Cibles ignorées",
+            "no_probe_findings": "Aucun constat probe.",
+            "severity": "Sévérité",
+            "target": "Cible",
+            "summary": "Résumé",
+            "findings_http_verify": "Constats (http_verify)",
+            "no_http_verify_emitted": "Aucun constat http_verify émis par l'outil.",
+            "no_http_verify_findings": "Aucun constat http_verify.",
+            "first_detected": "Première détection",
+            "last_detected": "Dernière détection",
+            "affected_endpoints": "Points de terminaison affectés",
+            "and_n_others": "et {n} autres",
+            "evidence": "Preuves",
+            "findings_http_verify_detailed": "Constats (http_verify, détail)",
+            "warning_incomplete_http_targets": "Avertissement: http_verify a traité moins de cibles que prévu; vérifier le timeout de l'outil ou les erreurs.",
+            "scan_telemetry": "Télémétrie du scan",
+            "events": "Événements",
+        }
+    return {
+        "title": "# CASM Unified Report",
+        "subtitle": "## Continuous Attack Surface Monitoring",
+        "report_schema": "Report schema",
+        "engagement": "Engagement",
+        "run": "Run",
+        "executive_summary": "Executive Summary",
+        "open_ports_found": "Open ports found",
+        "dns_subdomains_discovered": "DNS subdomains discovered",
+        "http_findings": "HTTP findings",
+        "http_attempts_observed": "HTTP attempts observed",
+        "http_responses_observed": "HTTP responses observed",
+        "http_errors_observed": "HTTP errors observed",
+        "http_blocked_observed": "HTTP blocked observed",
+        "scope_method": "Scope & Method",
+        "seed_targets": "Seed targets",
+        "allowed_ports": "Allowed ports",
+        "allowed_protocols": "Allowed protocols",
+        "dns_enum_results": "DNS Enumeration Results",
+        "discovered_subdomains": "Discovered subdomains",
+        "no_dns_discoveries": "No DNS discoveries.",
+        "wildcard_dns_detected": "Wildcard DNS detected:",
+        "findings_probe": "Findings (probe)",
+        "method": "Method",
+        "imported_targets_file": "Imported targets file",
+        "targets_file": "Targets file",
+        "imported_targets": "Imported targets",
+        "deduped_targets": "Deduped targets",
+        "allowed_targets": "Allowed targets",
+        "blocked_targets": "Blocked targets",
+        "attempted_targets": "Attempted targets",
+        "skipped_targets": "Skipped targets",
+        "no_probe_findings": "No probe findings.",
+        "severity": "Severity",
+        "target": "Target",
+        "summary": "Summary",
+        "findings_http_verify": "Findings (http_verify)",
+        "no_http_verify_emitted": "No http_verify findings emitted by the tool.",
+        "no_http_verify_findings": "No http_verify findings.",
+        "first_detected": "First detected",
+        "last_detected": "Last detected",
+        "affected_endpoints": "Affected endpoints",
+        "and_n_others": "and {n} others",
+        "evidence": "Evidence",
+        "findings_http_verify_detailed": "Findings (http_verify, detailed)",
+        "warning_incomplete_http_targets": "Warning: http_verify completed fewer targets than scheduled; check tool timeout or errors.",
+        "scan_telemetry": "Scan Telemetry",
+        "events": "Events",
+    }
+
+
+def _translate_probe_finding_title(title: str, lang: str) -> str:
+    if lang != "fr":
+        return title
+    if title.lower().startswith("open tcp port"):
+        return "Port TCP ouvert"
+    return title
+
+
+def _translate_http_rule_message(rule_id: str, message: str, lang: str) -> str:
+    if lang != "fr":
+        return message
+    mapping = {
+        "MISSING_HSTS": "L'en-tête Strict-Transport-Security est absent.",
+        "HTTP_NOT_HTTPS": "Le point de terminaison est exposé en HTTP (sans TLS). HSTS ne s'applique pas; envisagez une exposition en HTTPS.",
+        "MISSING_CSP": "L'en-tête Content-Security-Policy est absent.",
+        "MISSING_X_FRAME_OPTIONS": "L'en-tête X-Frame-Options est absent.",
+        "MISSING_X_CONTENT_TYPE_OPTIONS": "L'en-tête X-Content-Type-Options est absent.",
+        "MISSING_REFERRER_POLICY": "L'en-tête Referrer-Policy est absent.",
+        "HTTPS_DOWNGRADE_REDIRECT": "Le point de terminaison HTTPS redirige vers HTTP.",
+        "MISSING_CONTENT_TYPE": "L'en-tête Content-Type est absent.",
+        "MISSING_ANTI_EMBEDDING": "La protection anti-encapsulation (frame-ancestors/X-Frame-Options) est insuffisante.",
+        "MISSING_COOP": "L'en-tête Cross-Origin-Opener-Policy est absent.",
+        "MISSING_COEP": "L'en-tête Cross-Origin-Embedder-Policy est absent.",
+        "MISSING_CORP": "L'en-tête Cross-Origin-Resource-Policy est absent.",
+        "MISSING_CHARSET": "Le charset est absent du Content-Type.",
+        "CSP_MISSING_FRAME_ANCESTORS": "Content-Security-Policy ne contient pas la directive frame-ancestors.",
+        "TLS_CERT_EXPIRES_SOON": "Le certificat TLS expire bientôt.",
+    }
+    if rule_id in mapping:
+        return mapping[rule_id]
+    direct_map = {
+        "Endpoint is served over HTTP (no TLS). HSTS is not applicable; consider serving over HTTPS.": "Le point de terminaison est exposé en HTTP (sans TLS). HSTS ne s'applique pas; envisagez une exposition en HTTPS.",
+        "Endpoint is served over HTTP (no TLS).": "Le point de terminaison est exposé en HTTP (sans TLS).",
+        "Missing Strict-Transport-Security header.": "L'en-tête Strict-Transport-Security est absent.",
+        "Missing Content-Security-Policy header.": "L'en-tête Content-Security-Policy est absent.",
+        "Missing X-Frame-Options header.": "L'en-tête X-Frame-Options est absent.",
+        "Missing X-Content-Type-Options header.": "L'en-tête X-Content-Type-Options est absent.",
+        "Missing Referrer-Policy header.": "L'en-tête Referrer-Policy est absent.",
+        "HTTPS endpoint redirects to HTTP.": "Le point de terminaison HTTPS redirige vers HTTP.",
+        "Missing Content-Type header.": "L'en-tête Content-Type est absent.",
+        "Content-Type is missing an explicit charset parameter for a text response.": "Le Content-Type ne précise pas explicitement de paramètre charset pour une réponse texte.",
+        "Content-Security-Policy is missing frame-ancestors directive.": "Content-Security-Policy ne contient pas la directive frame-ancestors.",
+        "No CSP frame-ancestors or X-Frame-Options found.": "Aucune protection anti-encapsulation n'a été trouvée (ni CSP frame-ancestors ni X-Frame-Options).",
+        "Missing Cross-Origin-Opener-Policy (COOP) header (web_hardening profile).": "L'en-tête Cross-Origin-Opener-Policy (COOP) est absent (profil web_hardening).",
+        "Missing Cross-Origin-Embedder-Policy (COEP) header (web_hardening profile).": "L'en-tête Cross-Origin-Embedder-Policy (COEP) est absent (profil web_hardening).",
+        "Missing Cross-Origin-Resource-Policy (CORP) header (web_hardening profile).": "L'en-tête Cross-Origin-Resource-Policy (CORP) est absent (profil web_hardening).",
+        "TLS certificate expires soon.": "Le certificat TLS expire bientôt.",
+    }
+    return direct_map.get(message, message)
 
 
 def _aggregate_http_findings(http_findings: list[dict], evidence: list[dict]) -> list[dict]:

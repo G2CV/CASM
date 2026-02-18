@@ -127,3 +127,29 @@ def test_find_baseline_info_picks_latest(tmp_path: Path) -> None:
     baseline = _find_baseline_info("eng-001", "20260103T010101Z-cccc", engagement_dir)
     assert baseline is not None
     assert baseline.run_id == "20260102T010101Z-bbbb"
+
+
+def test_generate_pdf_report_supports_french(tmp_path: Path) -> None:
+    evidence_path = tmp_path / "evidence.jsonl"
+    targets_path = tmp_path / "targets.jsonl"
+    sarif_path = tmp_path / "results.sarif"
+
+    _write_jsonl(
+        evidence_path,
+        [
+            {"type": "http_attempt", "timestamp": "2025-01-01T00:00:00Z"},
+            {"type": "tcp_connect", "timestamp": "2025-01-01T00:00:01Z", "target": "example.com:80"},
+        ],
+    )
+    _write_jsonl(targets_path, [{"target": "example.com:80", "host": "example.com"}])
+    _write_sarif(sarif_path)
+
+    pdf_path = generate_pdf_report(
+        engagement_id="eng-001",
+        run_id="run-001",
+        output_dir=tmp_path,
+        evidence_store=None,
+        report_lang="fr",
+    )
+    assert pdf_path.exists()
+    assert pdf_path.stat().st_size > 0

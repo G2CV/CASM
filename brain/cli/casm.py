@@ -181,6 +181,7 @@ def unified_command(args: argparse.Namespace) -> int:
         dry_run=args.dry_run,
         targets_file=args.targets_file,
         detailed_report=args.detailed,
+        report_lang=args.report_lang,
     )
 
     try:
@@ -198,6 +199,7 @@ def unified_command(args: argparse.Namespace) -> int:
                 evidence_store=None,
                 branding_config=scope.pdf_branding,
                 diff_config=scope.pdf_diff,
+                report_lang=args.report_lang,
             )
             print(f"PDF report created: {pdf_path}")
         except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
@@ -451,6 +453,12 @@ def main() -> int:
         "--format",
         default="all",
         help="Output formats: markdown,sarif,pdf or all",
+    )
+    unified_parser.add_argument(
+        "--report-lang",
+        choices=["en", "fr"],
+        default="en",
+        help="Report language for markdown/pdf outputs",
     )
     unified_parser.set_defaults(func=unified_command)
 
