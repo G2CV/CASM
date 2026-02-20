@@ -19,7 +19,7 @@ else:
         def finalize_options(self) -> None:
             super().finalize_options()
             self.root_is_pure = False
-            if sys.platform.startswith("linux") and not self.plat_name:
+            if sys.platform.startswith("linux"):
                 machine = platform.machine().lower()
                 if machine in {"x86_64", "amd64"}:
                     self.plat_name = "manylinux2014_x86_64"
