@@ -22,6 +22,9 @@ g2cv-casm = "brain.cli.casm:main"
 [tool.setuptools.packages.find]
 include = ["brain", "brain.*"]
 
+[tool.setuptools.package-data]
+brain = ["_bin/**/*"]
+
 [tool.setuptools_scm]
 tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+.*)$"
 version_scheme = "no-guess-dev"

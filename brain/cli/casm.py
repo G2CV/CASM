@@ -9,6 +9,7 @@ import os
 import sys
 
 from pathlib import Path
+from typing import NoReturn
 from urllib.parse import urlparse
 
 from brain.adapters.evidence_store_fs import FileSystemEvidenceStore
@@ -25,6 +26,63 @@ from brain.core.pdf_report import generate_pdf_report
 from brain.core.inventory import build_http_verify_inventory, write_inventory
 from brain.core.orchestrator import Orchestrator
 from brain.core.scope import Scope, ScopeGuard
+from brain.core.tool_resolver import ToolResolutionError, resolve_tool_path
+
+
+class CasmArgumentParser(argparse.ArgumentParser):
+    """Argument parser with targeted, actionable CLI error hints."""
+
+    def error(self, message: str) -> NoReturn:
+        hint = _argument_hint(message)
+        super().error(f"{message}{hint}")
+
+
+def _argument_hint(message: str) -> str:
+    argv = sys.argv
+
+    if "the following arguments are required" in message:
+        if "--scope" in message and "--config" in argv:
+            return "\nHint: `run probe` and `run http-verify` expect `--scope`, not `--config`."
+        if "--config" in message and "--scope" in argv:
+            return "\nHint: `run unified` and `run dns-enum` expect `--config`, not `--scope`."
+        return ""
+
+    if "unrecognized arguments" not in message:
+        return ""
+
+    hints = []
+    if "--enable-dns-enum" in message:
+        hints.append(
+            "`--enable-dns-enum` is only valid with `casm run unified`. "
+            "Use `casm run unified --config <scope> --enable-dns-enum` "
+            "or `casm run dns-enum --config <scope>`."
+        )
+    if "--config" in message:
+        hints.append(
+            "`run probe` and `run http-verify` expect `--scope`, not `--config`."
+        )
+    if "--scope" in message:
+        hints.append(
+            "`run unified` and `run dns-enum` expect `--config`, not `--scope`."
+        )
+    if "--targets-file" in message:
+        hints.append(
+            "`--targets-file` is only available with `casm run unified`."
+        )
+    if "--probe-tool-path" in message or "--http-tool-path" in message:
+        hints.append(
+            "`--probe-tool-path` and `--http-tool-path` are only available with `casm run unified`; "
+            "for `probe`/`http-verify`, use `--tool-path`."
+        )
+    if "--dns-tool-path" in message:
+        hints.append(
+            "`--dns-tool-path` is only available with `casm run unified`; "
+            "for DNS-only runs, use `casm run dns-enum --tool-path <path>`."
+        )
+
+    if not hints:
+        return ""
+    return "\nHint: " + " ".join(hints)
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -126,8 +184,13 @@ def _is_ip(value: str) -> bool:
 def run_command(args: argparse.Namespace) -> int:
     """Run the probe pipeline for the provided scope."""
     scope = Scope.from_file(args.scope)
+    try:
+        probe_tool = resolve_tool_path("probe", args.tool_path)
+    except ToolResolutionError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     scope_guard = ScopeGuard(scope)
-    gateway = ToolGatewayAdapter(tool_path=args.tool_path, scope_guard=scope_guard)
+    gateway = ToolGatewayAdapter(tool_path=probe_tool.path, scope_guard=scope_guard)
     evidence_store = FileSystemEvidenceStore()
     orchestrator = Orchestrator(gateway, evidence_store, NoopPublisher())
     summary = orchestrator.run(scope_path=args.scope, dry_run=args.dry_run)
@@ -138,6 +201,11 @@ def run_command(args: argparse.Namespace) -> int:
 def http_verify_command(args: argparse.Namespace) -> int:
     """Run HTTP verification with per-run artifacts in runs/ directory."""
     scope = Scope.from_file(args.scope)
+    try:
+        http_tool = resolve_tool_path("http_verify", args.tool_path)
+    except ToolResolutionError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     run_id = Orchestrator._new_run_id()
     run_dir = Path("runs") / scope.engagement_id / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -149,7 +217,7 @@ def http_verify_command(args: argparse.Namespace) -> int:
         scope.http_verify_https_ports,
     )
     write_inventory(str(run_dir / "targets.jsonl"), inventory)
-    gateway = HttpVerifyGateway(tool_path=args.tool_path, timeout_ms=scope.tool_timeout_ms)
+    gateway = HttpVerifyGateway(tool_path=http_tool.path, timeout_ms=scope.tool_timeout_ms)
     result = gateway.run(request.payload)
 
     print(
@@ -169,13 +237,24 @@ def unified_command(args: argparse.Namespace) -> int:
     else:
         scope = Scope.from_file(args.config)
 
+    try:
+        probe_tool = resolve_tool_path("probe", args.probe_tool_path)
+        http_tool = resolve_tool_path("http_verify", args.http_tool_path)
+        dns_tool_path = None
+        if args.enable_dns_enum:
+            dns_tool = resolve_tool_path("dns_enum", args.dns_tool_path)
+            dns_tool_path = dns_tool.path
+    except ToolResolutionError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
     outputs = run_unified(
         scope_path=args.config,
         out_dir=out_dir,
         sarif_mode=args.sarif_mode,
-        probe_tool_path=args.probe_tool_path,
-        http_tool_path=args.http_tool_path,
-        dns_tool_path=args.dns_tool_path,
+        probe_tool_path=probe_tool.path,
+        http_tool_path=http_tool.path,
+        dns_tool_path=dns_tool_path,
         dns_enabled=args.enable_dns_enum,
         dns_wordlist=args.dns_wordlist,
         dry_run=args.dry_run,
@@ -227,6 +306,11 @@ def _load_run_id(evidence_path: Path) -> str:
 def dns_enum_command(args: argparse.Namespace) -> int:
     """Run DNS enumeration with optional per-run overrides."""
     scope = Scope.from_file(args.config)
+    try:
+        dns_tool = resolve_tool_path("dns_enum", args.tool_path)
+    except ToolResolutionError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     run_id = Orchestrator._new_run_id()
     out_dir = args.out
     if out_dir is None:
@@ -261,7 +345,7 @@ def dns_enum_command(args: argparse.Namespace) -> int:
         run_id=run_id,
         domains=domains,
         out_dir=out_dir,
-        tool_path=args.tool_path,
+        tool_path=dns_tool.path,
         dry_run=args.dry_run,
         overrides=overrides,
     )
@@ -357,7 +441,7 @@ def diff_command(args: argparse.Namespace) -> int:
 
 def main() -> int:
     """CLI entrypoint and command registration."""
-    parser = argparse.ArgumentParser(prog="casm")
+    parser = CasmArgumentParser(prog="casm")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     run_parser = subparsers.add_parser("run", help="Run a scan")
@@ -367,8 +451,8 @@ def main() -> int:
     probe_parser.add_argument("--scope", required=True, help="Path to scope.yaml")
     probe_parser.add_argument(
         "--tool-path",
-        default="hands/bin/probe",
-        help="Path to probe tool binary",
+        default=None,
+        help="Path to probe tool binary (auto-resolved if omitted)",
     )
     probe_parser.add_argument(
         "--dry-run",
@@ -384,8 +468,8 @@ def main() -> int:
     http_parser.add_argument("--scope", required=True, help="Path to scope.yaml")
     http_parser.add_argument(
         "--tool-path",
-        default="hands/bin/http_verify",
-        help="Path to http_verify tool binary",
+        default=None,
+        help="Path to http_verify tool binary (auto-resolved if omitted)",
     )
     http_parser.add_argument(
         "--dry-run",
@@ -408,13 +492,13 @@ def main() -> int:
     )
     unified_parser.add_argument(
         "--probe-tool-path",
-        default="hands/bin/probe",
-        help="Path to probe tool binary",
+        default=None,
+        help="Path to probe tool binary (auto-resolved if omitted)",
     )
     unified_parser.add_argument(
         "--http-tool-path",
-        default="hands/bin/http_verify",
-        help="Path to http_verify tool binary",
+        default=None,
+        help="Path to http_verify tool binary (auto-resolved if omitted)",
     )
     unified_parser.add_argument(
         "--targets-file",
@@ -436,8 +520,8 @@ def main() -> int:
     )
     unified_parser.add_argument(
         "--dns-tool-path",
-        default="hands/bin/dns_enum",
-        help="Path to dns_enum tool binary",
+        default=None,
+        help="Path to dns_enum tool binary (auto-resolved if omitted)",
     )
     unified_parser.add_argument(
         "--dns-wordlist",
@@ -466,8 +550,8 @@ def main() -> int:
     dns_parser.add_argument("--config", required=True, help="Path to scope.yaml")
     dns_parser.add_argument(
         "--tool-path",
-        default="hands/bin/dns_enum",
-        help="Path to dns_enum tool binary",
+        default=None,
+        help="Path to dns_enum tool binary (auto-resolved if omitted)",
     )
     dns_parser.add_argument("--out", default=None, help="Output directory for artifacts")
     dns_parser.add_argument("--domain", action="append", help="Domain to enumerate (repeatable)")

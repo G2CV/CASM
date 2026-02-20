@@ -13,12 +13,41 @@ CASM helps security teams continuously monitor external exposure in authorized e
 # Install
 pip install g2cv-casm
 
+# Create a minimal scope and targets file
+cat > scope.yaml <<'YAML'
+engagement_id: quickstart
+allowed_domains: [example.com]
+allowed_ips: []
+allowed_ports: [443]
+allowed_protocols: [https]
+seed_targets: [example.com]
+max_rate: 5
+max_concurrency: 2
+active_allowed: false
+auth_allowed: false
+YAML
+
+cat > targets.json <<'JSON'
+{
+  "targets": [
+    {"url": "https://example.com", "method": "HEAD"}
+  ]
+}
+JSON
+
 # Run a unified scan
-casm run unified --config scopes/scope.yaml --targets-file targets/target-harness.example.json
+casm run unified --config scope.yaml --targets-file targets.json --dry-run false
 
 # Compare with a previous run
 casm diff --old runs/baseline/results.sarif --new runs/current/results.sarif
 ```
+
+By default, CASM auto-resolves tool binaries in this order: bundled wheel tools,
+local `hands/bin` (source tree), cache, then optional download configured with
+`CASM_TOOL_DOWNLOAD_URL_TEMPLATE` and `CASM_TOOL_MANIFEST_URL`.
+
+In a source checkout, if `hands/bin/<tool>` is missing and Go is installed,
+CASM auto-builds the tool on first use.
 
 ## What CASM Does
 
