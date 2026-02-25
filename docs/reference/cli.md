@@ -17,6 +17,7 @@ casm
   evidence
   migrate
   diff
+  alert
 ```
 
 ## `casm run probe`
@@ -52,6 +53,18 @@ casm
 | `--detailed` | flag | no | false |
 | `--format` | csv/all | no | `all` |
 | `--report-lang` | enum (`en`,`fr`) | no | `en` |
+| `--alert-on-diff` | flag | no | false |
+| `--baseline-sarif` | path | no | auto-detect previous run |
+| `--alert-tool` | string | no | `http_verify` |
+| `--alert-dry-run` | flag | no | false |
+| `--alert-min-severity` | enum | no | from scope/default |
+| `--alert-rule-id` | repeatable str | no | none |
+| `--alert-uri-regex` | regex | no | none |
+| `--alert-cooldown-minutes` | int | no | from scope/default |
+| `--alert-max-events` | int | no | from scope/default |
+| `--alert-state-path` | path | no | from scope/default |
+| `--alert-only-added` | flag | no | false |
+| `--alert-only-removed` | flag | no | false |
 
 Language examples:
 
@@ -96,3 +109,27 @@ Key filters: `--type`, `--tool`, `--target-id`, `--contains`, `--since`, `--unti
 - `--tool` default `http_verify`
 - `--include-unchanged` optional
 - `--out` optional output file
+
+## `casm alert`
+
+- `--config`, `--old`, `--new` required
+- `--tool` default `http_verify`
+- `--min-severity` optional: `critical|high|medium|low|info|unknown`
+- `--rule-id` optional repeatable allow-list
+- `--uri-regex` optional URI filter
+- `--cooldown-minutes` optional duplicate suppression window
+- `--max-events` optional publish cap
+- `--state-path` optional cooldown state file path
+- `--only-added` or `--only-removed` optional event type scope
+- `--dry-run` optional evaluation-only mode
+
+Example:
+
+```bash
+casm alert \
+  --config scopes/scope.yaml \
+  --old runs/eng/baseline/results.sarif \
+  --new runs/eng/current/results.sarif \
+  --min-severity medium \
+  --cooldown-minutes 60
+```

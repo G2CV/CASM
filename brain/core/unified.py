@@ -20,6 +20,7 @@ from brain.core.scope import Scope, ScopeGuard
 from brain.core.schema_version import SCHEMA_VERSION
 from brain.core.url_canonical import canonicalize_url
 from brain.core.dns_enum import execute_dns_enum
+from brain.ports.publisher import Publisher
 
 
 @dataclass
@@ -57,6 +58,7 @@ def run_unified(
     dns_enabled: bool | None = None,
     dns_wordlist: str | None = None,
     report_lang: str = "en",
+    publisher: Publisher | None = None,
 ) -> UnifiedOutputs:
     """Run probe + optional DNS + HTTP verify and merge artifacts.
 
@@ -199,6 +201,20 @@ def run_unified(
         report_lang=report_lang,
     )
     Path(report_path).write_text(report_md, encoding="utf-8")
+
+    if publisher is not None:
+        run_summary = {
+            "event_type": "run_summary",
+            "engagement_id": scope.engagement_id,
+            "run_id": run_id,
+            "findings_probe": len(probe_result.findings),
+            "blocked_reason": probe_result.blocked_reason,
+            "report_path": report_path,
+            "evidence_path": evidence_path,
+            "sarif_path": sarif_path,
+            "targets_path": targets_path,
+        }
+        publisher.publish(run_summary)
 
     return UnifiedOutputs(
         targets_path=targets_path,

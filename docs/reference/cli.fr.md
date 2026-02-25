@@ -17,6 +17,7 @@ casm
   evidence
   migrate
   diff
+  alert
 ```
 
 ## `casm run probe`
@@ -52,6 +53,18 @@ casm
 | `--detailed` | flag | non | false |
 | `--format` | csv/all | non | `all` |
 | `--report-lang` | enum (`en`,`fr`) | non | `en` |
+| `--alert-on-diff` | flag | non | false |
+| `--baseline-sarif` | path | non | auto-detect run précédente |
+| `--alert-tool` | string | non | `http_verify` |
+| `--alert-dry-run` | flag | non | false |
+| `--alert-min-severity` | enum | non | scope/défaut |
+| `--alert-rule-id` | string répétable | non | none |
+| `--alert-uri-regex` | regex | non | none |
+| `--alert-cooldown-minutes` | int | non | scope/défaut |
+| `--alert-max-events` | int | non | scope/défaut |
+| `--alert-state-path` | path | non | scope/défaut |
+| `--alert-only-added` | flag | non | false |
+| `--alert-only-removed` | flag | non | false |
 
 Exemples de langue:
 
@@ -96,3 +109,16 @@ Filtres principaux: `--type`, `--tool`, `--target-id`, `--contains`, `--since`, 
 - `--tool` par défaut `http_verify`
 - `--include-unchanged` optionnel
 - `--out` fichier de sortie optionnel
+
+## `casm alert`
+
+- `--config`, `--old`, `--new` obligatoires
+- `--tool` par défaut `http_verify`
+- `--min-severity` optionnel: `critical|high|medium|low|info|unknown`
+- `--rule-id` optionnel, répétable
+- `--uri-regex` optionnel
+- `--cooldown-minutes` optionnel (fenêtre anti-doublon)
+- `--max-events` optionnel (limite de publication)
+- `--state-path` optionnel (fichier d'état du cooldown)
+- `--only-added` ou `--only-removed` optionnels
+- `--dry-run` optionnel (évaluation sans publication)

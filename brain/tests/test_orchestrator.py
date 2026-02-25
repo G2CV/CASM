@@ -29,6 +29,14 @@ class FakeToolGateway:
         )
 
 
+class RecordingPublisher:
+    def __init__(self) -> None:
+        self.events: list[dict] = []
+
+    def publish(self, run_summary: dict) -> None:
+        self.events.append(run_summary)
+
+
 def test_orchestrator_writes_report_and_evidence(tmp_path) -> None:
     scope_path = tmp_path / "scope.yaml"
     scope_path.write_text(
@@ -201,3 +209,36 @@ auth_allowed: false
     assert run_item["tool_version"] == version
     assert Path(run_item["data"]["stderr_path"]).exists()
     assert Path(run_item["data"]["stdout_path"]).exists()
+
+
+def test_orchestrator_publishes_run_summary_event_type(tmp_path) -> None:
+    scope_path = tmp_path / "scope.yaml"
+    scope_path.write_text(
+        f"""
+engagement_id: eng-123
+allowed_domains:
+  - example.com
+allowed_ips: []
+allowed_ports: [80, 443]
+allowed_protocols: [tcp]
+seed_targets: [example.com]
+max_rate: 5
+max_concurrency: 2
+run_dir: {tmp_path}/runs
+active_allowed: false
+auth_allowed: false
+""",
+        encoding="utf-8",
+    )
+
+    gateway = FakeToolGateway("contracts/fixtures/probe_response.json")
+    evidence_store = FileSystemEvidenceStore(base_dir=str(tmp_path / "runs"))
+    publisher = RecordingPublisher()
+    orchestrator = Orchestrator(gateway, evidence_store, publisher)
+    summary = orchestrator.run(scope_path=str(scope_path), dry_run=False)
+
+    assert len(publisher.events) == 1
+    event = publisher.events[0]
+    assert event["event_type"] == "run_summary"
+    assert event["engagement_id"] == "eng-123"
+    assert event["run_id"] == summary["run_id"]

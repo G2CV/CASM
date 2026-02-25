@@ -40,6 +40,7 @@ class Scope:
     excluded_domains: list[str] = field(default_factory=list)
     pdf_branding: dict | None = None
     pdf_diff: dict | None = None
+    notifications: dict | None = None
 
     @staticmethod
     def from_file(path: str) -> "Scope":
@@ -81,6 +82,7 @@ class Scope:
             dns_enumeration=data.get("dns_enumeration"),
             pdf_branding=data.get("pdf_branding"),
             pdf_diff=data.get("pdf_diff"),
+            notifications=data.get("notifications"),
         )
 
     def snapshot(self) -> dict:
@@ -113,6 +115,7 @@ class Scope:
             "dns_enumeration": self.dns_enumeration,
             "pdf_branding": self.pdf_branding,
             "pdf_diff": self.pdf_diff,
+            "notifications": self.notifications,
         }
 
     def allowed_domain_patterns(self) -> list[str]:

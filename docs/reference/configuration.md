@@ -39,6 +39,7 @@
 | `dns_enumeration` | object/null | null | DNS settings block |
 | `pdf_branding` | object/null | null | PDF styling fields |
 | `pdf_diff` | object/null | null | PDF diff section settings |
+| `notifications` | object/null | null | Publisher configuration block |
 
 ## DNS Enumeration Config Block
 
@@ -49,6 +50,54 @@
 - `rate_limit`, `timeout`, `max_depth`, `max_consecutive_failures`
 - `record_types`, `check_zone_transfer`, `detect_wildcard`
 - `active_discovery.enabled|wordlist|rate_limit|timeout|max_depth|concurrency`
+
+## Notifications Config Block
+
+`notifications.publishers` accepts a list of publisher objects.
+
+Supported publisher types:
+
+- `webhook`
+  - `url` (required): destination endpoint
+  - `timeout_seconds` (optional, default `10`)
+  - `max_retries` (optional, default `2`)
+  - `headers` (optional): object of HTTP headers
+- `file`
+  - `path` (required): JSONL file path for appended events
+
+Optional alert options in `notifications.alerts`:
+
+- `min_severity` (default `low`)
+- `rule_ids` (optional list)
+- `uri_regex` (optional regex string)
+- `cooldown_minutes` (default `0`)
+- `max_events` (default `50`)
+- `include_added` (default `true`)
+- `include_removed` (default `true`)
+- `state_path` (default `runs/<engagement_id>/alerts_state.json`)
+
+Publisher failures are logged and do not fail the scan pipeline.
+
+Example:
+
+```yaml
+notifications:
+  publishers:
+    - type: webhook
+      url: "https://hooks.slack.com/services/T000/B000/xxxx"
+      timeout_seconds: 10
+      max_retries: 2
+      headers:
+        Authorization: "Bearer token-here"
+    - type: file
+      path: "runs/notifications.jsonl"
+  alerts:
+    min_severity: "medium"
+    cooldown_minutes: 60
+    max_events: 25
+    include_added: true
+    include_removed: true
+```
 
 ## Precedence Order
 

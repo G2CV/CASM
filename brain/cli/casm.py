@@ -6,6 +6,7 @@ import argparse
 import ipaddress
 import json
 import os
+import re
 import sys
 
 from pathlib import Path
@@ -13,14 +14,15 @@ from typing import NoReturn
 from urllib.parse import urlparse
 
 from brain.adapters.evidence_store_fs import FileSystemEvidenceStore
+from brain.adapters.publisher_factory import resolve_publisher
 from brain.adapters.http_verify_gateway import HttpVerifyGateway
-from brain.adapters.publisher_noop import NoopPublisher
 from brain.adapters.tool_gateway import ToolGatewayAdapter
 from brain.core.evidence_view import EvidenceFilter, load_evidence, parse_timestamp
 from brain.core.http_verify import build_http_verify_request
 from brain.core.dns_enum import run_dns_enum
 from brain.core.migrate import migrate_run
 from brain.core.diff import diff_sarif, render_diff_report
+from brain.core.alerts import AlertOptions, dispatch_diff_alerts
 from brain.core.unified import run_unified
 from brain.core.pdf_report import generate_pdf_report
 from brain.core.inventory import build_http_verify_inventory, write_inventory
@@ -192,7 +194,7 @@ def run_command(args: argparse.Namespace) -> int:
     scope_guard = ScopeGuard(scope)
     gateway = ToolGatewayAdapter(tool_path=probe_tool.path, scope_guard=scope_guard)
     evidence_store = FileSystemEvidenceStore()
-    orchestrator = Orchestrator(gateway, evidence_store, NoopPublisher())
+    orchestrator = Orchestrator(gateway, evidence_store, resolve_publisher(scope.notifications))
     summary = orchestrator.run(scope_path=args.scope, dry_run=args.dry_run)
     print(f"Run complete: {summary}")
     return 0
@@ -261,7 +263,45 @@ def unified_command(args: argparse.Namespace) -> int:
         targets_file=args.targets_file,
         detailed_report=args.detailed,
         report_lang=args.report_lang,
+        publisher=resolve_publisher(scope.notifications),
     )
+
+    if args.alert_on_diff:
+        if args.only_added and args.only_removed:
+            print("Invalid flags: --alert-only-added and --alert-only-removed are mutually exclusive", file=sys.stderr)
+            return 2
+        baseline_path = args.baseline_sarif or _auto_baseline_sarif(scope.engagement_id, outputs.sarif_path)
+        if not baseline_path:
+            print(
+                "Alerting skipped: no baseline SARIF found. "
+                "Provide --baseline-sarif or run another scan first.",
+                file=sys.stderr,
+            )
+        else:
+            try:
+                diff = diff_sarif(baseline_path, outputs.sarif_path, tool_filter=args.alert_tool)
+                options = _alert_options_from_scope(scope, args)
+                if options.uri_regex:
+                    re.compile(options.uri_regex)
+                run_id = _load_run_id(Path(outputs.evidence_path))
+                alert_result = dispatch_diff_alerts(
+                    diff,
+                    resolve_publisher(scope.notifications),
+                    engagement_id=scope.engagement_id,
+                    run_id=run_id,
+                    old_path=baseline_path,
+                    new_path=outputs.sarif_path,
+                    options=options,
+                    dry_run=args.alert_dry_run,
+                )
+                print(
+                    "Unified alerting complete: "
+                    f"baseline={baseline_path} considered={alert_result.considered} "
+                    f"published={alert_result.published} suppressed={alert_result.suppressed_by_cooldown} "
+                    f"skipped={alert_result.skipped_by_filters} dry_run={str(args.alert_dry_run).lower()}"
+                )
+            except (FileNotFoundError, json.JSONDecodeError, ValueError, re.error) as exc:
+                print(f"Alerting failed: {exc}", file=sys.stderr)
 
     try:
         formats = _parse_formats(args.format)
@@ -439,6 +479,103 @@ def diff_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def _alert_options_from_scope(scope: Scope, args: argparse.Namespace) -> AlertOptions:
+    notifications = scope.notifications if isinstance(scope.notifications, dict) else {}
+    alert_config = notifications.get("alerts") if isinstance(notifications, dict) else {}
+    if not isinstance(alert_config, dict):
+        alert_config = {}
+
+    default_state_path = Path("runs") / scope.engagement_id / "alerts_state.json"
+    options = AlertOptions(
+        min_severity=str(alert_config.get("min_severity", "low")),
+        rule_ids=[str(item) for item in alert_config.get("rule_ids", [])] if isinstance(alert_config.get("rule_ids"), list) else None,
+        uri_regex=str(alert_config.get("uri_regex")) if alert_config.get("uri_regex") else None,
+        cooldown_minutes=int(alert_config.get("cooldown_minutes", 0)),
+        max_events=int(alert_config.get("max_events", 50)),
+        include_added=bool(alert_config.get("include_added", True)),
+        include_removed=bool(alert_config.get("include_removed", True)),
+        state_path=str(alert_config.get("state_path", default_state_path)),
+    )
+
+    if getattr(args, "min_severity", None):
+        options.min_severity = args.min_severity
+    if getattr(args, "rule_id", None):
+        options.rule_ids = list(args.rule_id)
+    if getattr(args, "uri_regex", None):
+        options.uri_regex = args.uri_regex
+    if getattr(args, "cooldown_minutes", None) is not None:
+        options.cooldown_minutes = args.cooldown_minutes
+    if getattr(args, "max_events", None) is not None:
+        options.max_events = args.max_events
+    if getattr(args, "state_path", None):
+        options.state_path = args.state_path
+    if getattr(args, "only_added", False):
+        options.include_added = True
+        options.include_removed = False
+    if getattr(args, "only_removed", False):
+        options.include_added = False
+        options.include_removed = True
+    return options
+
+
+def _auto_baseline_sarif(engagement_id: str, current_sarif_path: str) -> str | None:
+    current = Path(current_sarif_path).resolve()
+    root = Path("runs") / engagement_id
+    if not root.exists():
+        return None
+    candidates = sorted(root.glob("*/results.sarif"), key=lambda item: item.stat().st_mtime, reverse=True)
+    for candidate in candidates:
+        try:
+            if candidate.resolve() == current:
+                continue
+        except OSError:
+            continue
+        return str(candidate)
+    return None
+
+
+def alert_command(args: argparse.Namespace) -> int:
+    """Generate diff-based alert events and publish through configured channels."""
+    if args.only_added and args.only_removed:
+        print("Invalid flags: --only-added and --only-removed are mutually exclusive", file=sys.stderr)
+        return 2
+
+    scope = Scope.from_file(args.config)
+    try:
+        diff = diff_sarif(args.old, args.new, tool_filter=args.tool)
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    options = _alert_options_from_scope(scope, args)
+    try:
+        if options.uri_regex:
+            re.compile(options.uri_regex)
+    except re.error as exc:
+        print(f"Invalid --uri-regex: {exc}", file=sys.stderr)
+        return 2
+
+    publisher = resolve_publisher(scope.notifications)
+    run_id = Orchestrator._new_run_id()
+    result = dispatch_diff_alerts(
+        diff,
+        publisher,
+        engagement_id=scope.engagement_id,
+        run_id=run_id,
+        old_path=args.old,
+        new_path=args.new,
+        options=options,
+        dry_run=args.dry_run,
+    )
+
+    print(
+        "Alerting complete: "
+        f"considered={result.considered} published={result.published} "
+        f"suppressed={result.suppressed_by_cooldown} skipped={result.skipped_by_filters} dry_run={str(args.dry_run).lower()}"
+    )
+    return 0
+
+
 def main() -> int:
     """CLI entrypoint and command registration."""
     parser = CasmArgumentParser(prog="casm")
@@ -544,6 +681,78 @@ def main() -> int:
         default="en",
         help="Report language for markdown/pdf outputs",
     )
+    unified_parser.add_argument(
+        "--alert-on-diff",
+        action="store_true",
+        help="Run diff-based alert publishing after unified run",
+    )
+    unified_parser.add_argument(
+        "--baseline-sarif",
+        default=None,
+        help="Baseline SARIF path for unified alert diff (auto-detected if omitted)",
+    )
+    unified_parser.add_argument(
+        "--alert-tool",
+        default="http_verify",
+        help="Tool filter for unified alert diff",
+    )
+    unified_parser.add_argument(
+        "--alert-dry-run",
+        action="store_true",
+        help="Evaluate unified alerts without publishing them",
+    )
+    unified_parser.add_argument(
+        "--alert-min-severity",
+        dest="min_severity",
+        choices=["critical", "high", "medium", "low", "info", "unknown"],
+        default=None,
+        help="Override alert min severity",
+    )
+    unified_parser.add_argument(
+        "--alert-rule-id",
+        dest="rule_id",
+        action="append",
+        default=None,
+        help="Override alert rule ID allow-list (repeatable)",
+    )
+    unified_parser.add_argument(
+        "--alert-uri-regex",
+        dest="uri_regex",
+        default=None,
+        help="Override alert URI regex filter",
+    )
+    unified_parser.add_argument(
+        "--alert-cooldown-minutes",
+        dest="cooldown_minutes",
+        type=int,
+        default=None,
+        help="Override alert cooldown window",
+    )
+    unified_parser.add_argument(
+        "--alert-max-events",
+        dest="max_events",
+        type=int,
+        default=None,
+        help="Override alert max events",
+    )
+    unified_parser.add_argument(
+        "--alert-state-path",
+        dest="state_path",
+        default=None,
+        help="Override alert cooldown state path",
+    )
+    unified_parser.add_argument(
+        "--alert-only-added",
+        dest="only_added",
+        action="store_true",
+        help="Publish only finding_added events in unified alerting",
+    )
+    unified_parser.add_argument(
+        "--alert-only-removed",
+        dest="only_removed",
+        action="store_true",
+        help="Publish only finding_removed events in unified alerting",
+    )
     unified_parser.set_defaults(func=unified_command)
 
     dns_parser = run_subparsers.add_parser("dns-enum", help="Run dns_enum tool")
@@ -637,6 +846,66 @@ def main() -> int:
     )
     diff_parser.add_argument("--out", default=None, help="Write report to a file")
     diff_parser.set_defaults(func=diff_command)
+
+    alert_parser = subparsers.add_parser("alert", help="Publish diff-based alert events")
+    alert_parser.add_argument("--config", required=True, help="Path to scope.yaml")
+    alert_parser.add_argument("--old", required=True, help="Path to baseline SARIF")
+    alert_parser.add_argument("--new", required=True, help="Path to current SARIF")
+    alert_parser.add_argument(
+        "--tool",
+        default="http_verify",
+        help="Tool filter based on runAutomationDetails id suffix",
+    )
+    alert_parser.add_argument(
+        "--min-severity",
+        choices=["critical", "high", "medium", "low", "info", "unknown"],
+        default=None,
+        help="Only publish events at or above this severity",
+    )
+    alert_parser.add_argument(
+        "--rule-id",
+        action="append",
+        default=None,
+        help="Rule ID allow-list (repeatable)",
+    )
+    alert_parser.add_argument(
+        "--uri-regex",
+        default=None,
+        help="Regex allow-list for finding URI",
+    )
+    alert_parser.add_argument(
+        "--cooldown-minutes",
+        type=int,
+        default=None,
+        help="Suppress duplicate event+fingerprint notifications for this window",
+    )
+    alert_parser.add_argument(
+        "--max-events",
+        type=int,
+        default=None,
+        help="Maximum number of finding events to publish",
+    )
+    alert_parser.add_argument(
+        "--state-path",
+        default=None,
+        help="Path to cooldown state file",
+    )
+    alert_parser.add_argument(
+        "--only-added",
+        action="store_true",
+        help="Publish only finding_added events",
+    )
+    alert_parser.add_argument(
+        "--only-removed",
+        action="store_true",
+        help="Publish only finding_removed events",
+    )
+    alert_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Evaluate and summarize alerts without publishing",
+    )
+    alert_parser.set_defaults(func=alert_command)
 
     args = parser.parse_args()
     return args.func(args)

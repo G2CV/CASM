@@ -49,3 +49,21 @@ dns_enumeration:
     - MX
     - TXT
     - SRV
+
+notifications:
+  # publishers:
+  #   - type: webhook
+  #     url: "https://hooks.slack.com/services/T.../B.../xxx"
+  #     timeout_seconds: 10
+  #     max_retries: 2
+  #     headers:
+  #       Authorization: "Bearer token-here"
+  #   - type: file
+  #     path: "runs/notifications.jsonl"
+  # alerts:
+  #   min_severity: medium
+  #   cooldown_minutes: 60
+  #   max_events: 25
+  #   include_added: true
+  #   include_removed: true
+  #   state_path: "runs/eng-123/alerts_state.json"

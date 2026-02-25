@@ -100,10 +100,12 @@ def test_resolve_tool_path_downloads_when_manifest_matches(tmp_path, monkeypatch
 
 
 def test_resolve_tool_path_raises_when_unavailable(tmp_path, monkeypatch) -> None:
+    cache_path = tmp_path / "cache" / "probe"
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(tool_resolver, "_materialize_bundled_binary", lambda *_args: None)
     monkeypatch.setattr(tool_resolver, "_build_from_source_tree", lambda *_args: None)
     monkeypatch.setattr(tool_resolver, "_download_binary", lambda *_args: None)
+    monkeypatch.setattr(tool_resolver, "_cache_path", lambda *_args: cache_path)
 
     with pytest.raises(tool_resolver.ToolResolutionError):
         tool_resolver.resolve_tool_path("probe")

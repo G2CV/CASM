@@ -157,6 +157,7 @@ class Orchestrator:
             )
 
         run_summary = {
+            "event_type": "run_summary",
             "engagement_id": scope.engagement_id,
             "run_id": run_id,
             "findings": len(result.findings),

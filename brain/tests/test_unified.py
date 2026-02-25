@@ -16,6 +16,14 @@ from brain.core.unified import (
 )
 
 
+class RecordingPublisher:
+    def __init__(self) -> None:
+        self.events: list[dict] = []
+
+    def publish(self, run_summary: dict) -> None:
+        self.events.append(run_summary)
+
+
 def test_derive_http_targets_dedupes_and_orders() -> None:
     scope = Scope(
         engagement_id="eng",
@@ -234,6 +242,8 @@ def test_run_unified_import_mode_writes_artifacts(tmp_path, monkeypatch) -> None
         encoding="utf-8",
     )
 
+    publisher = RecordingPublisher()
+
     outputs = run_unified(
         scope_path=str(scope_path),
         out_dir=str(tmp_path / "out"),
@@ -242,12 +252,16 @@ def test_run_unified_import_mode_writes_artifacts(tmp_path, monkeypatch) -> None
         http_tool_path="/bin/false",
         dry_run=True,
         targets_file=str(targets_path),
+        publisher=publisher,
     )
 
     assert Path(outputs.targets_path).exists()
     assert Path(outputs.evidence_path).exists()
     assert Path(outputs.sarif_path).exists()
     assert Path(outputs.report_path).exists()
+    assert len(publisher.events) == 1
+    assert publisher.events[0]["event_type"] == "run_summary"
+    assert publisher.events[0]["evidence_path"] == outputs.evidence_path
 
 
 def test_render_unified_report_includes_http_counts(tmp_path) -> None:
