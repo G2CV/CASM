@@ -1,0 +1,277 @@
+name: CASM Auto-Diff
+description: Run CASM unified scans, diff against a baseline SARIF, and publish evidence-first GitHub comments.
+
+inputs:
+  scope-path:
+    description: Path to the CASM scope file
+    required: true
+  targets-file:
+    description: Optional JSON targets file
+    required: false
+    default: ""
+  run-out-dir:
+    description: Directory where CASM run artifacts are written
+    required: false
+    default: runs/current
+  baseline-path:
+    description: Baseline SARIF path used for diffing
+    required: false
+    default: .casm/baseline/results.sarif
+  casm-version:
+    description: Package spec passed to pip install (for example g2cv-casm or g2cv-casm==1.2.3)
+    required: false
+    default: g2cv-casm
+  python-version:
+    description: Python runtime version
+    required: false
+    default: "3.11"
+  dry-run:
+    description: Whether to run CASM in dry-run mode
+    required: false
+    default: "false"
+  report-lang:
+    description: CASM report language (en or fr)
+    required: false
+    default: en
+  formats:
+    description: CASM output formats (comma-separated or all)
+    required: false
+    default: markdown,sarif
+  enable-dns-enum:
+    description: Enable DNS enumeration in unified scans
+    required: false
+    default: "false"
+  dns-wordlist:
+    description: Optional DNS wordlist path
+    required: false
+    default: ""
+  tool-filter:
+    description: Tool suffix filter for SARIF diff
+    required: false
+    default: http_verify
+  post-mode:
+    description: Publish mode (none, auto, issue, pr)
+    required: false
+    default: auto
+  pr-number:
+    description: Explicit PR number for comment posting
+    required: false
+    default: ""
+  issue-number:
+    description: Explicit issue number for comment posting
+    required: false
+    default: ""
+  issue-title:
+    description: Baseline issue title when auto-creating issue comments
+    required: false
+    default: CASM Security Baseline
+  issue-labels:
+    description: Comma-separated labels used when creating baseline issue
+    required: false
+    default: ""
+  max-findings:
+    description: Max added/removed findings shown in report sections
+    required: false
+    default: "20"
+  post-on-no-change:
+    description: Publish report even when baseline diff has no added/removed findings
+    required: false
+    default: "false"
+  github-token:
+    description: GitHub token override for API publishing
+    required: false
+    default: ""
+  fail-on-publish-error:
+    description: Fail the action if the reporter cannot publish comments
+    required: false
+    default: "false"
+
+outputs:
+  has-baseline:
+    description: Whether a baseline SARIF was present before the run
+    value: ${{ steps.baseline.outputs.has_baseline }}
+  has-changes:
+    description: Whether diff found added or removed findings
+    value: ${{ steps.report.outputs.has_changes }}
+  added-count:
+    description: Added findings count
+    value: ${{ steps.report.outputs.added_count }}
+  removed-count:
+    description: Removed findings count
+    value: ${{ steps.report.outputs.removed_count }}
+  unchanged-count:
+    description: Unchanged findings count
+    value: ${{ steps.report.outputs.unchanged_count }}
+  published:
+    description: Whether a GitHub comment was published
+    value: ${{ steps.report.outputs.published }}
+  target-kind:
+    description: Publish target kind (pr, issue, none)
+    value: ${{ steps.report.outputs.target_kind }}
+  target-number:
+    description: Publish target number, when available
+    value: ${{ steps.report.outputs.target_number }}
+  post-skipped-reason:
+    description: Reason publish was skipped, when applicable
+    value: ${{ steps.report.outputs.post_skipped_reason }}
+  sarif-path:
+    description: SARIF output path
+    value: ${{ steps.run_unified.outputs.sarif_path }}
+  evidence-path:
+    description: Evidence JSONL output path
+    value: ${{ steps.run_unified.outputs.evidence_path }}
+  report-path:
+    description: Markdown report output path
+    value: ${{ steps.run_unified.outputs.report_path }}
+  summary-path:
+    description: Auto-diff markdown summary path
+    value: ${{ steps.report.outputs.summary_path }}
+  baseline-path:
+    description: Updated baseline SARIF path
+    value: ${{ steps.update_baseline.outputs.baseline_path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install CASM
+      shell: bash
+      run: |
+        set -euo pipefail
+        python -m pip install --upgrade pip
+        python -m pip install "${{ inputs.casm-version }}"
+
+    - name: Run CASM unified
+      id: run_unified
+      shell: bash
+      run: |
+        set -euo pipefail
+        run_dir="${{ inputs.run-out-dir }}"
+        mkdir -p "$run_dir"
+
+        cmd=(
+          casm run unified
+          --config "${{ inputs.scope-path }}"
+          --out "$run_dir"
+          --dry-run="${{ inputs.dry-run }}"
+          --format "${{ inputs.formats }}"
+          --report-lang "${{ inputs.report-lang }}"
+        )
+
+        if [ -n "${{ inputs.targets-file }}" ]; then
+          cmd+=(--targets-file "${{ inputs.targets-file }}")
+        fi
+        if [ "${{ inputs.enable-dns-enum }}" = "true" ]; then
+          cmd+=(--enable-dns-enum)
+        fi
+        if [ -n "${{ inputs.dns-wordlist }}" ]; then
+          cmd+=(--dns-wordlist "${{ inputs.dns-wordlist }}")
+        fi
+
+        "${cmd[@]}"
+
+        echo "evidence_path=$run_dir/evidence.jsonl" >> "$GITHUB_OUTPUT"
+        echo "sarif_path=$run_dir/results.sarif" >> "$GITHUB_OUTPUT"
+        echo "report_path=$run_dir/report.md" >> "$GITHUB_OUTPUT"
+
+    - name: Check baseline
+      id: baseline
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ -f "${{ inputs.baseline-path }}" ]; then
+          echo "has_baseline=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "has_baseline=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Publish auto-diff report
+      id: report
+      shell: bash
+      env:
+        DEFAULT_GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+
+        token="${{ inputs.github-token }}"
+        if [ -z "$token" ]; then
+          token="$DEFAULT_GITHUB_TOKEN"
+        fi
+
+        label_args=()
+        IFS=',' read -r -a raw_labels <<< "${{ inputs.issue-labels }}"
+        for label in "${raw_labels[@]}"; do
+          cleaned="$(echo "$label" | xargs)"
+          if [ -n "$cleaned" ]; then
+            label_args+=(--issue-label "$cleaned")
+          fi
+        done
+
+        args=(
+          --new-sarif "${{ steps.run_unified.outputs.sarif_path }}"
+          --tool "${{ inputs.tool-filter }}"
+          --max-findings "${{ inputs.max-findings }}"
+          --mode "${{ inputs.post-mode }}"
+          --repo "${{ github.repository }}"
+          --token "$token"
+          --issue-title "${{ inputs.issue-title }}"
+          --evidence-path "${{ steps.run_unified.outputs.evidence_path }}"
+          --report-path "${{ steps.run_unified.outputs.report_path }}"
+          --run-url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          --summary-path "${{ inputs.run-out-dir }}/auto-diff.md"
+          --json-out "${{ inputs.run-out-dir }}/auto-diff.json"
+        )
+
+        if [ "${{ steps.baseline.outputs.has_baseline }}" = "true" ]; then
+          args+=(--old-sarif "${{ inputs.baseline-path }}")
+        fi
+        if [ -n "${{ inputs.issue-number }}" ]; then
+          args+=(--issue-number "${{ inputs.issue-number }}")
+        fi
+        if [ -n "${{ inputs.pr-number }}" ]; then
+          args+=(--pr-number "${{ inputs.pr-number }}")
+        fi
+        if [ "${{ inputs.post-on-no-change }}" = "true" ]; then
+          args+=(--post-on-no-change)
+        fi
+        args+=("${label_args[@]}")
+
+        set +e
+        python "${{ github.action_path }}/scripts/github_auto_diff.py" "${args[@]}"
+        reporter_status=$?
+        set -e
+
+        if [ $reporter_status -ne 0 ]; then
+          if [ "${{ inputs.fail-on-publish-error }}" = "true" ]; then
+            exit $reporter_status
+          fi
+          echo "Reporter failed with exit code $reporter_status; continuing."
+        fi
+
+        report_json="${{ inputs.run-out-dir }}/auto-diff.json"
+        if [ -f "$report_json" ]; then
+          REPORT_JSON="$report_json" python -c 'import json, os; payload = json.load(open(os.environ["REPORT_JSON"], "r", encoding="utf-8")); keys = ["added_count", "removed_count", "unchanged_count", "has_changes", "published", "target_kind", "target_number", "post_skipped_reason"]; output = open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8"); [output.write(f"{key}={payload.get(key, '')}\n") for key in keys]; output.close()'
+        else
+          echo "added_count=" >> "$GITHUB_OUTPUT"
+          echo "removed_count=" >> "$GITHUB_OUTPUT"
+          echo "unchanged_count=" >> "$GITHUB_OUTPUT"
+          echo "has_changes=" >> "$GITHUB_OUTPUT"
+          echo "published=false" >> "$GITHUB_OUTPUT"
+          echo "target_kind=none" >> "$GITHUB_OUTPUT"
+          echo "target_number=" >> "$GITHUB_OUTPUT"
+          echo "post_skipped_reason=reporter_failed_no_json" >> "$GITHUB_OUTPUT"
+        fi
+        echo "summary_path=${{ inputs.run-out-dir }}/auto-diff.md" >> "$GITHUB_OUTPUT"
+
+    - name: Update baseline SARIF
+      id: update_baseline
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p "$(dirname "${{ inputs.baseline-path }}")"
+        cp "${{ steps.run_unified.outputs.sarif_path }}" "${{ inputs.baseline-path }}"
+        echo "baseline_path=${{ inputs.baseline-path }}" >> "$GITHUB_OUTPUT"

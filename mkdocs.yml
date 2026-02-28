@@ -47,6 +47,7 @@ plugins:
             Debug Cross Language: Debug cross-language
             Testing: Tests
             Profile Performance: Profiling performance
+            GitHub Auto-Diff Bot: Bot GitHub Auto-Diff
             Release Python Package: Publier package Python
             Contributing: Contribution
             Reference: Reference
@@ -82,6 +83,7 @@ nav:
       - Debug Cross Language: how-to/debug-cross-language.md
       - Testing: how-to/testing.md
       - Profile Performance: how-to/profile-performance.md
+      - GitHub Auto-Diff Bot: how-to/github-auto-diff.md
       - Release Python Package: how-to/release-python-package.md
       - Contributing: how-to/contributing.md
   - Reference:

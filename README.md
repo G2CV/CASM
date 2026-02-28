@@ -75,6 +75,7 @@ Changes Since Last Scan (PDF)
 - Tutorials: `docs/tutorials/`
 - CLI reference: `docs/reference/cli.md`
 - Configuration reference: `docs/reference/configuration.md`
+- GitHub Auto-Diff Bot guide: `docs/how-to/github-auto-diff.md`
 - Release guide: `docs/how-to/release-python-package.md`
 - Security model: `docs/explanation/security-model.md`
 
