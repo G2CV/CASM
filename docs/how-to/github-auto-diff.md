@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .casm/baseline
-          key: casm-baseline-${{ github.ref_name }}-${{ github.run_id }}
+          key: casm-baseline-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             casm-baseline-${{ github.ref_name }}-
 
@@ -63,7 +63,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .casm/baseline
-          key: casm-baseline-${{ github.ref_name }}-${{ github.run_id }}
+          key: casm-baseline-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
 ```
 
 ## Inputs
@@ -87,5 +87,6 @@ jobs:
 ## Notes
 
 - The action updates `baseline-path` each run; cache or commit that path to persist baseline between runs.
+- Include `${{ github.run_attempt }}` in cache keys to avoid save collisions when rerunning the same workflow run.
 - `post-mode=auto` posts to PR when `pr-number` is set, otherwise to an issue.
 - For strict pipelines, set `fail-on-publish-error: true` to fail the job when comment publishing fails.

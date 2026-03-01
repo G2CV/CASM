@@ -51,5 +51,6 @@ def test_render_bootstrap_markdown_marks_missing_baseline() -> None:
     )
 
     assert "Baseline SARIF: _not found_" in rendered
+    assert "Baseline persistence: GitHub Actions cache" in rendered
     assert "current/results.sarif" in rendered
     assert "example.test/run/1" in rendered

@@ -60,13 +60,14 @@ def render_auto_diff_markdown(
     lines = [
         "## CASM Auto-Diff Report",
         "",
-        f"- Baseline SARIF: `{old_label}`",
+        f"- Baseline SARIF path (runner workspace): `{old_label}`",
         f"- Current SARIF: `{new_label}`",
         f"- Added findings: **{summary.added_count}**",
         f"- Removed findings: **{summary.removed_count}**",
         f"- Unchanged findings: {summary.unchanged_count}",
         f"- Added by severity: {_format_counts(summary.added_by_severity)}",
         f"- Removed by severity: {_format_counts(summary.removed_by_severity)}",
+        "- Baseline persistence: GitHub Actions cache (unless you commit the baseline file).",
     ]
     if run_url:
         lines.append(f"- Workflow run: {run_url}")
@@ -117,6 +118,7 @@ def render_bootstrap_markdown(
         "- Baseline SARIF: _not found_",
         f"- Current SARIF: `{new_label}`",
         "- Baseline action: current SARIF has been promoted as the new baseline.",
+        "- Baseline persistence: GitHub Actions cache (unless you commit the baseline file).",
     ]
     if run_url:
         lines.append(f"- Workflow run: {run_url}")
