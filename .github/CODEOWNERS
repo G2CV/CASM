@@ -1,0 +1,9 @@
+# Default ownership for repository changes.
+* @ggunullu
+
+# Security and release-critical paths.
+/.github/workflows/** @ggunullu
+/action.yml @ggunullu
+/scripts/** @ggunullu
+/brain/core/** @ggunullu
+/docs/** @ggunullu

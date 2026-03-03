@@ -36,6 +36,25 @@ go test ./...  # from hands/
 - Mention test coverage for the change.
 - Link related issues if applicable.
 
+## Merge Governance
+
+Use pull requests for all changes to `main`. Do not push directly to `main`.
+
+- Required review: at least one approving review.
+- Required checks: CI test-and-docs workflow must pass.
+- Keep PRs scoped and small when possible.
+- Resolve all review conversations before merge.
+- Prefer squash merge for feature branches.
+- Delete the branch after merge.
+
+Repository guardrails are codified in:
+
+- `.github/CODEOWNERS`
+- `.github/pull_request_template.md`
+- `.github/dependabot.yml`
+
+Branch protection rules are configured in GitHub repository settings and should enforce the required review/check behavior above.
+
 ## Security Reports
 
 Please report vulnerabilities privately. See `SECURITY.md`.
