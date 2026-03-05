@@ -1,0 +1,51 @@
+name: CASM Auto-Diff Example
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  auto-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore baseline cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .casm/baseline
+          key: casm-baseline-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            casm-baseline-${{ github.ref_name }}-
+
+      - name: Run CASM Auto-Diff action
+        id: casm
+        uses: ./
+        with:
+          scope-path: scopes/scope.example.yaml
+          targets-file: targets/target-harness.example.json
+          baseline-path: .casm/baseline/results.sarif
+          dry-run: "true"
+          post-mode: none
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: casm-auto-diff-${{ github.run_id }}
+          path: |
+            runs/current/evidence.jsonl
+            runs/current/results.sarif
+            runs/current/report.md
+            runs/current/auto-diff.md
+            runs/current/auto-diff.json
+
+      - name: Save baseline cache
+        uses: actions/cache/save@v4
+        with:
+          path: .casm/baseline
+          key: casm-baseline-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
