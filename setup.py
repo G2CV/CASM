@@ -26,5 +26,10 @@ else:
                 elif machine in {"aarch64", "arm64"}:
                     self.plat_name = "manylinux2014_aarch64"
 
+        def get_tag(self):
+            # Ship platform-specific wheels that are Python-ABI independent.
+            _, _, plat = super().get_tag()
+            return "py3", "none", plat
+
 
     setup(cmdclass={"bdist_wheel": bdist_wheel})
