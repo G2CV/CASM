@@ -215,6 +215,23 @@ def run_unified(
             "targets_path": targets_path,
         }
         publisher.publish(run_summary)
+        if probe_result.blocked_reason:
+            publisher.publish(
+                {
+                    "event_type": "run_blocked",
+                    "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                    "source": "casm.run",
+                    "engagement_id": scope.engagement_id,
+                    "run_id": run_id,
+                    "tool_name": probe_result.tool_name or "probe",
+                    "tool_version": probe_result.tool_version,
+                    "blocked_reason": probe_result.blocked_reason,
+                    "report_path": report_path,
+                    "evidence_path": evidence_path,
+                    "sarif_path": sarif_path,
+                    "targets_path": targets_path,
+                }
+            )
 
     return UnifiedOutputs(
         targets_path=targets_path,

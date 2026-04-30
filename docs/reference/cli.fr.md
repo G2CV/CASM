@@ -14,6 +14,8 @@ casm
     http-verify
     unified
     dns-enum
+  notify
+    test
   evidence
   migrate
   diff
@@ -122,3 +124,40 @@ Filtres principaux: `--type`, `--tool`, `--target-id`, `--contains`, `--since`, 
 - `--state-path` optionnel (fichier d'état du cooldown)
 - `--only-added` ou `--only-removed` optionnels
 - `--dry-run` optionnel (évaluation sans publication)
+
+Exemple:
+
+```bash
+casm alert \
+  --config scopes/scope.yaml \
+  --old runs/eng/baseline/results.sarif \
+  --new runs/eng/current/results.sarif \
+  --min-severity medium \
+  --cooldown-minutes 60
+```
+
+## `casm notify test`
+
+Envoie un événement synthétique via les publishers/routes de notification configurés.
+
+| Option | Type | Requis | Defaut |
+|---|---|---|---|
+| `--config` | path | oui | - |
+| `--event-type` | string | non | `notification_test` |
+| `--severity` | enum | non | `info` |
+| `--rule-id` | string | non | `NOTIFICATION_TEST` |
+| `--uri` | string | non | `casm://notification-test` |
+| `--message` | string | non | `CASM notification test event.` |
+| `--dry-run` | flag | non | false |
+| `--json` | flag | non | false, affiche l'événement JSON au lieu du texte de statut |
+
+Exemple:
+
+```bash
+casm notify test \
+  --config scopes/scope.yaml \
+  --event-type finding_added \
+  --severity medium \
+  --rule-id MISSING_CSP \
+  --uri https://example.com/
+```

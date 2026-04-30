@@ -55,11 +55,49 @@ CASM auto-builds the tool on first use.
 - Verify web hardening signals and transport/security headers.
 - Track change between scans with baseline-aware diffs.
 - Report in SARIF, Markdown, PDF, and JSONL evidence streams.
+- Publish routed notifications for run summaries, blocked runs, and finding diffs.
 
 ## Safety by Default
 
 - Authorization-first scope controls (domains, IPs, ports, protocols).
 - Dry-run support, deterministic blocking reasons, and rate/concurrency guardrails.
+
+## Notifications and Alerts
+
+CASM can publish evidence-backed events to file or webhook destinations. Routes
+filter events by type, severity, rule ID, or URI pattern, so teams can send
+high-signal changes to the right channel without posting every run.
+
+```yaml
+notifications:
+  routes:
+    - name: security-medium-plus
+      events: [finding_added, run_blocked, notification_test]
+      min_severity: medium
+      publisher:
+        type: webhook
+        url: "https://hooks.example.test/casm"
+        template: raw
+```
+
+Test delivery before enabling alerts:
+
+```bash
+casm notify test --config scope.yaml --severity medium --rule-id MISSING_CSP
+```
+
+Publish diff alerts after comparing a baseline and current SARIF:
+
+```bash
+casm alert \
+  --config scope.yaml \
+  --old runs/baseline/results.sarif \
+  --new runs/current/results.sarif \
+  --min-severity medium \
+  --cooldown-minutes 60
+```
+
+Supported webhook templates are `raw`, `slack`, `teams`, and `discord`.
 
 ## Screenshots
 

@@ -1,4 +1,5 @@
 import argparse
+import json
 
 import pytest
 from types import SimpleNamespace
@@ -190,3 +191,47 @@ def test_unified_can_dispatch_alerts_after_run(monkeypatch, tmp_path, capsys) ->
     assert captured[0]["dry_run"] is True
     stdout = capsys.readouterr().out
     assert "Unified alerting complete" in stdout
+
+
+def test_notify_test_command_dispatches_synthetic_event(monkeypatch, capsys) -> None:
+    scope = Scope(
+        engagement_id="eng-notify",
+        allowed_domains=[],
+        allowed_ips=[],
+        allowed_ports=[80],
+        allowed_protocols=["http"],
+        seed_targets=["localhost"],
+        max_rate=1.0,
+        max_concurrency=1,
+        notifications={"routes": []},
+    )
+    captured: list[dict] = []
+
+    class Recorder:
+        def publish(self, event: dict) -> None:
+            captured.append(event)
+
+    monkeypatch.setattr(casm.Scope, "from_file", staticmethod(lambda _path: scope))
+    monkeypatch.setattr(casm, "resolve_publisher", lambda _cfg: Recorder())
+
+    args = argparse.Namespace(
+        config="scope.yaml",
+        event_type="finding_added",
+        severity="medium",
+        rule_id="MISSING_CSP",
+        uri="https://example.com/",
+        message="Missing CSP.",
+        dry_run=False,
+        json=True,
+    )
+
+    code = casm.notify_test_command(args)
+
+    assert code == 0
+    assert len(captured) == 1
+    assert captured[0]["event_type"] == "finding_added"
+    assert captured[0]["engagement_id"] == "eng-notify"
+    stdout = capsys.readouterr().out.splitlines()
+    payload = json.loads(stdout[0])
+    assert payload["rule_id"] == "MISSING_CSP"
+    assert len(stdout) == 1

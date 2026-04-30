@@ -167,6 +167,22 @@ class Orchestrator:
             "sarif_path": str(sarif_path),
         }
         self.publisher.publish(run_summary)
+        if result.blocked_reason:
+            self.publisher.publish(
+                {
+                    "event_type": "run_blocked",
+                    "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                    "source": "casm.run",
+                    "engagement_id": scope.engagement_id,
+                    "run_id": run_id,
+                    "tool_name": tool_name,
+                    "tool_version": tool_version,
+                    "blocked_reason": result.blocked_reason,
+                    "report_path": output_paths["report"],
+                    "evidence_path": output_paths["evidence"],
+                    "sarif_path": str(sarif_path),
+                }
+            )
         return run_summary
 
     @staticmethod

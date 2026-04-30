@@ -9,6 +9,7 @@ import os
 import re
 import sys
 
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import NoReturn
 from urllib.parse import urlparse
@@ -576,6 +577,35 @@ def alert_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def notify_test_command(args: argparse.Namespace) -> int:
+    """Dispatch a synthetic notification event through configured routes."""
+    scope = Scope.from_file(args.config)
+    event = {
+        "event_type": args.event_type,
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "source": "casm.notify",
+        "engagement_id": scope.engagement_id,
+        "run_id": Orchestrator._new_run_id(),
+        "severity": args.severity,
+        "rule_id": args.rule_id,
+        "uri": args.uri,
+        "message": args.message,
+        "dry_run": bool(args.dry_run),
+    }
+
+    if not args.dry_run:
+        resolve_publisher(scope.notifications).publish(event)
+
+    if args.json:
+        print(json.dumps(event, sort_keys=True))
+    else:
+        print(
+            "Notification test complete: "
+            f"event_type={args.event_type} severity={args.severity} dry_run={str(args.dry_run).lower()}"
+        )
+    return 0
+
+
 def main() -> int:
     """CLI entrypoint and command registration."""
     parser = CasmArgumentParser(prog="casm")
@@ -906,6 +936,49 @@ def main() -> int:
         help="Evaluate and summarize alerts without publishing",
     )
     alert_parser.set_defaults(func=alert_command)
+
+    notify_parser = subparsers.add_parser("notify", help="Work with notification delivery")
+    notify_subparsers = notify_parser.add_subparsers(dest="mode", required=True)
+
+    notify_test_parser = notify_subparsers.add_parser("test", help="Send a synthetic notification event")
+    notify_test_parser.add_argument("--config", required=True, help="Path to scope.yaml")
+    notify_test_parser.add_argument(
+        "--event-type",
+        default="notification_test",
+        help="Event type to publish through configured routes",
+    )
+    notify_test_parser.add_argument(
+        "--severity",
+        choices=["critical", "high", "medium", "low", "info", "unknown"],
+        default="info",
+        help="Synthetic event severity",
+    )
+    notify_test_parser.add_argument(
+        "--rule-id",
+        default="NOTIFICATION_TEST",
+        help="Synthetic rule ID for route filters",
+    )
+    notify_test_parser.add_argument(
+        "--uri",
+        default="casm://notification-test",
+        help="Synthetic URI/target for route filters",
+    )
+    notify_test_parser.add_argument(
+        "--message",
+        default="CASM notification test event.",
+        help="Synthetic event message",
+    )
+    notify_test_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the test event without publishing it",
+    )
+    notify_test_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Print the synthetic notification event as JSON",
+    )
+    notify_test_parser.set_defaults(func=notify_test_command)
 
     args = parser.parse_args()
     return args.func(args)

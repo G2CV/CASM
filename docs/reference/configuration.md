@@ -53,7 +53,8 @@
 
 ## Notifications Config Block
 
-`notifications.publishers` accepts a list of publisher objects.
+`notifications.publishers` accepts a list of publisher objects. These receive
+all published notification events and preserve the pre-routing behavior.
 
 Supported publisher types:
 
@@ -62,8 +63,20 @@ Supported publisher types:
   - `timeout_seconds` (optional, default `10`)
   - `max_retries` (optional, default `2`)
   - `headers` (optional): object of HTTP headers
+  - `template` (optional): `raw`, `slack`, `teams`, or `discord`
 - `file`
   - `path` (required): JSONL file path for appended events
+
+`notifications.routes` accepts filtered notification routes. A route contains
+filters plus one nested `publisher` object.
+
+Route filters:
+
+- `name` (optional): route label added to delivered payloads
+- `events` (optional): allowed event types, such as `finding_added`, `finding_removed`, `run_summary`, `notification_test`
+- `min_severity` (optional): `critical`, `high`, `medium`, `low`, `info`, or `unknown`
+- `rule_ids` (optional): allowed rule IDs
+- `uri_regex` (optional): regex matched against `uri` or `target`
 
 Optional alert options in `notifications.alerts`:
 
@@ -85,12 +98,23 @@ notifications:
   publishers:
     - type: webhook
       url: "https://hooks.slack.com/services/T000/B000/xxxx"
+      template: slack
       timeout_seconds: 10
       max_retries: 2
       headers:
         Authorization: "Bearer token-here"
     - type: file
       path: "runs/notifications.jsonl"
+  routes:
+    - name: security-medium-plus
+      events:
+        - finding_added
+        - run_blocked
+      min_severity: medium
+      publisher:
+        type: webhook
+        url: "https://hooks.slack.com/services/T000/B000/yyyy"
+        template: slack
   alerts:
     min_severity: "medium"
     cooldown_minutes: 60

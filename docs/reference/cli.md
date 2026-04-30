@@ -14,6 +14,8 @@ casm
     http-verify
     unified
     dns-enum
+  notify
+    test
   evidence
   migrate
   diff
@@ -132,4 +134,30 @@ casm alert \
   --new runs/eng/current/results.sarif \
   --min-severity medium \
   --cooldown-minutes 60
+```
+
+## `casm notify test`
+
+Send a synthetic event through the configured notification publishers/routes.
+
+| Flag | Type | Required | Default |
+|---|---|---|---|
+| `--config` | path | yes | - |
+| `--event-type` | string | no | `notification_test` |
+| `--severity` | enum | no | `info` |
+| `--rule-id` | string | no | `NOTIFICATION_TEST` |
+| `--uri` | string | no | `casm://notification-test` |
+| `--message` | string | no | `CASM notification test event.` |
+| `--dry-run` | flag | no | false |
+| `--json` | flag | no | false, print event JSON instead of status text |
+
+Example:
+
+```bash
+casm notify test \
+  --config scopes/scope.yaml \
+  --event-type finding_added \
+  --severity medium \
+  --rule-id MISSING_CSP \
+  --uri https://example.com/
 ```
