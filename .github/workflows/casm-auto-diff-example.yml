@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Restore baseline cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .casm/baseline
           key: casm-baseline-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -45,7 +45,7 @@ jobs:
             runs/current/auto-diff.json
 
       - name: Save baseline cache
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: .casm/baseline
           key: casm-baseline-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
